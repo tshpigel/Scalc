@@ -1,0 +1,15 @@
+{
+    "manifest_version": 2,
+    "name": "Scalc+",
+    "version": "1.0",
+    "description": "An easy to use scientific calculator with extra functions",
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    "icons": {
+        "128": "scalc.png"
+    },
+    "browser_action": {
+        "default_icon": "scalc.png",
+        "default_popup": "calc.html"
+    },
+    "permissions": ["activeTab"]
+}

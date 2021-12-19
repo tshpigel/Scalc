@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='calc.css' type='text/css' rel='stylesheet'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Recursive:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Calculator</title>
+</head>
+<body>
+    <a id="legendLink" target="_blank" href="keysAndNotes.html">Menu</a>
+    <span id="extra"></span>
+    <button id="arrow"><i id="leftarrow"></i></button>
+    <button id="arrow"><i id="rightarrow"></i></button>
+    <div id="err"><span id="errtext"></span></div>
+    <div id="body">
+        <input id="bar" spellcheck="false">
+        <div id="main">
+            <button data-valIx="1" data-val="1" class="numbers val">1</button>
+            <button data-valIx="1" data-val="2" class="numbers val">2</button>
+            <button data-valIx="1" data-val="3" class="numbers">3</button>
+            <br>
+            <button data-valIx="1" data-val="4" class="numbers val">4</button>
+            <button data-valIx="1" data-val="5" class="numbers val">5</button>
+            <button data-valIx="1" data-val="6" class="numbers val">6</button>
+            <br>
+            <button data-valIx="1" data-val="7" class="numbers val">7</button>
+            <button data-valIx="1" data-val="8" class="numbers val">8</button>
+            <button data-valIx="1" data-val="9" class="numbers val">9</button>
+            <br>
+            <button data-valIx="1" data-val="0" class="numbers" id="zero">0</button>
+
+            <button data-valIx="3" data-val="Ans" id="ans" class="ans val">Ans</button>
+
+            <div id="dotneg">
+                <button data-valIx="1" data-val="." id="bottom" class="dot operat val">.</button>
+                <button id="top" class="neg operat">±</button>
+            </div>
+            <div id="drer">
+                <button id="deg_rad">RAD</button>
+                <button id="exc_rnd">ROUND</button>
+            </div>
+        </div>
+
+        <div id="ansEntriesCont">
+            <p id="entryLeft"></p>
+            <button id="entries">Entries</button>
+            <button id="exit">Exit</button>
+            <button id="resetC">Reset</button>
+        </div>
+        <p id="eClear">All entries have been cleared</p>
+
+        <div id="equ">
+            <button id="equb" class="equ operat"> = </button>
+        </div>
+        <div id="operat">
+            <button data-valIx="1" data-val="÷" class="operat val">÷</button><br>
+            <button data-valIx="1" data-val="×" class="operat val">×</button><br>
+            <button data-valIx="1" data-val="-" class="operat val"> - </button><br>
+            <button data-valIx="1" data-val="+" class="operat val">+</button><br>
+        </div>
+        <div id="snd">
+            <button id="sndb" class="snd"><span id="sndsub">2nd</span></button>
+        </div>
+        <div id="right">
+            <button class="val" data-valIx="1" data-specValIx="1" data-val="π" data-specVal="e" id="pi"><span class="small">e</span><br><span class="nb">π</span></button>
+            <button class="val" data-valIx="2" data-specValIx="3" data-val="√()" data-specVal="n√()" id="root"><span class="small"><sup>n</sup>√x</span><br><span class="nb">√x</span></button>
+            <button class="val" data-valIx="1" data-specValIx="1" id="SIP" data-val="!" data-specVal="S" id="fac"><span class="small">S<sub>x</sub></span><br><span class="nb">x!</span></button>
+            <button class="val" data-valIx="1" data-specValIx="2" data-val="%" data-specVal="1/" id="perc"><span class="small">x<sup>-1</sup></span><br><span class="nb">x%</span></button>
+            <button class="val" data-valIx="4" data-specValIx="7" data-val="sin()" data-specVal="arcsin()" id="sin"><span class="small">sin<sup>-1</sup>(x)</span><br><span class="nb">sin(x)</span></button>
+            <button class="val" data-valIx="4" data-specValIx="7" data-val="cos()" data-specVal="arccos()" id="cos"><span class="small">cos<sup>-1</sup>(x)</span><br><span class="nb">cos(x)</span></button>
+            <button class="val" data-valIx="4" data-specValIx="7" data-val="tan()" data-specVal="arctan()" id="tan"><span class="small">tan<sup>-1</sup>(x)</span><br><span class="nb">tan(x)</span></button>
+            <button class="val" data-valIx="2" data-specValIx="1" data-val="^2" data-specVal="^" id="power"><span class="small">n<sup>x</sup></span><br><span class="nb">x<sup>2</sup></span></button>
+        </div>
+        <button class="val" data-valIx="4" data-specValIx="1" data-val="log()" data-specVal="E" id="logE"><span class="small">10<sup>x</sup></span><br><span class="nb">log<sub>10</sub>(x)</span></button>
+        <button class="val" data-valIx="3" data-specValIx="4" data-val="ln()" data-specVal="exp()" id="lnexp"><span class="small">e<sup>x</sup></span><br><span class="nb">ln(x)</span></button>
+        <div id="memcb">
+            <div id="memorypb">
+                <button id="mc" class="memory">MC</button>
+                <button id="mp" class="memory">M+</button>
+                <button id="mm" class="memory">M-</button>
+                <button id="mr" class="memory">MR</button>
+                <button data-valIx="1" data-val="()" class="val" id="brack">( )</button>
+                <button>DEL</button>
+                <button id="cac">C</button>
+            </div>
+        </div>
+    </div>
+    <div id="serConfigCont">
+        <h2>Type</h2>
+        <button class="ser" id="ari">Arithmetic</button>
+        <button class="ser" id="geo">Geometric</button>
+
+        <h2>Starting Value</h2>
+        <input id="stval" type="number" value="1">
+        <h2 id="diffh2">Difference</h2>
+        <input id="diff" type="number" value="1">
+
+        <button id="save">Save</button>
+        <button id="reset">Reset</button>
+    </div>
+
+    <div id="exc_rndChoiceCont">
+        <p id="fixChoiceDesc">Decimals (max 6)</p>
+        <input type="number" id="fixChoice" value="2">
+        <button id="saveB">Save</button>
+        <button id="resetB">Reset</button>
+    </div>
+    <script src='calc.js'></script>
+</body>
+</html>
