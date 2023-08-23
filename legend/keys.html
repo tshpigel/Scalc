@@ -1,1 +1,200 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='keys.css' type='text/css' rel='stylesheet'>
+    <title>Legend</title>
+</head>
+<body>
+    <h1>Buttons & Keys</h1>
+    <table>
+        <colgroup>
+            <col class="buttons" span="1">
+            <col class="keys" span="1">
+            <col class="action" span="1">
+        </colgroup>
+        <tr>
+            <th>Buttons</th>
+            <th>Keys</th>
+            <th>Action</th>
+        </tr>
+        <tr>
+            <td><button class="numbers">0-9</button></td>
+            <td>0-9</td>
+            <td>Digit pressed will show up in the bar.</td>
+        </tr>
+        <tr>
+            <td><button class="opers">+-×÷.</button></td>
+            <td>+ - * / .</td>
+            <td>Basic operators (+ for adding, - for subtracting, * for multiplying, / for dividing, . for inserting a period i.e. for decimals).</td>
+        </tr>
+        <tr>
+            <td><button class="pom">±</button></td>
+            <td>_ (underscore)</td>
+            <td>Pressing the button will negate the current value in the bar, if the bar contains an expression the button does nothing. Typing an underscore will insert a negative sign.</td>
+        </tr>
+        <tr>
+            <td><button class="opers">=</button></td>
+            <td>'Enter' or 'return' =</td>
+            <td>Evaluates current expression in bar, either by pressing the equals symbol or 'enter' on the keyboard.</td>
+        </tr>
+        <tr>
+            <td><button class="mem">MEM</button></td>
+            <td>None</td>
+            <td>Basic memory functions (C for clear/back to 0, + for add, - for subtract, R for recall/print). For adding and subtracting, value must be in bar before pressing buttons.</td>
+        </tr>
+        <tr>
+            <td><button class="brac">()</button></td>
+            <td>(</td>
+            <td>Prints a bracket pair with the cursor position between them.</td>
+        </tr>
+        <tr>
+            <td><button class="del">DEL</button></td>
+            <td>'Backspace' or 'delete'</td>
+            <td>Removes the spaces before the cursor accordingly.</td>
+        </tr>
+        <tr>
+            <td><button class="clear">AC</button></td>
+            <td>A</td>
+            <td>Clears the bar.</td>
+        </tr>
+        <tr>
+            <td><button class="var"><span class="small">e</span><br><span>π</span></button></td>
+            <td>p</td>
+            <td>Pi or 3.141592653589793</td>
+        </tr>
+        <tr>
+            <td><button class="var"><span class="switch1 small">e</span><br><span class="switch2">π</span></button></td>
+            <td>e</td>
+            <td>Euler's number or 2.718281828459046</td>
+        </tr>
+        <tr>
+            <td><button class="bop"><span class="small">x%</span><br><span>x!</span></button></td>
+            <td>!</td>
+            <td>Factorial operator, allows decimals as well as integers.</td>
+        </tr>
+        <tr>
+            <td><button class="bop"><span class="switch1 small">x%</span><br><span class="switch2">x!</span></button></td>
+            <td>%</td>
+            <td>Percent operator, an equivalent shorthand to dividing by 100.</td>
+        </tr>
+        <tr>
+            <td><button class="trig"><span class="small">trig<sup>-1</sup>(x)</span><br><span>trig(x)</span></button></td>
+            <td>s c t</td>
+            <td>Basic trigonometric functions (s for sin, c for cos, t for tan). This is when 2nd mode is turned off.</td>
+        </tr>
+        <tr>
+            <td><button class="trig"><span class="switch1 small">trig<sup>-1</sup>(x)</span><br><span class="switch2">trig(x)</span></button></td>
+            <td>s c t</td>
+            <td>Basic inverse trigonometric functions (s for sin<sup>-1</sup>, c for cos<sup>-1</sup>, t for tan<sup>-1</sup>). This is when 2nd mode is turned on.</td>
+        </tr>
+        <tr>
+            <td><button class="combs"><span class="small"><sub>n</sub>P<sub>r</sub></span><br><span><sub>n</sub>C<sub>r</sub></span></button></td>
+            <td>C</td>
+            <td class="hasfrac">Combinations function which is equivalent to <span class="frac">
+                <span class="top">n!</span>
+                <span class="bottom">(n - r)!r!</span>
+            </span>.</td>
+        </tr>
+        <tr>
+            <td><button class="combs"><span class="switch1 small"><sub>n</sub>P<sub>r</sub></span><br><span class="switch2"><sub>n</sub>C<sub>r</sub></span></button></td>
+            <td>P</td>
+            <td class="hasfrac">Permutations function which is equivalent to <span class="frac">
+                <span class="top">n!</span>
+                <span class="bottom">(n - r)!</span>
+            </span>.</td>
+        </tr>
+        <tr>
+            <td><button class="xs"><span class="small">S<sub>x</sub></span><br><span>n<sup>x</sup></span></button></td>
+            <td>^</td>
+            <td>Exponent operator.</td>
+        </tr>
+        <tr>
+            <td><button class="xs holding"><span class="switch1 small">S<sub>x</sub></span><br><span class="switch2">n<sup>x</sup></span></button></td>
+            <td>S N</td>
+            <td>The S (sum) function calculates the sum of the first n elements (value after 'S') of the set sequence. Holding down the button for 1 second will display a popup to customize the sequence. Pressing the button when the caret position is 1 ahead will toggle between S and N. The N (nth) function calculates the nth element as opposed to the sum of the first n elements.</td>
+        </tr>
+        <tr>
+            <td><button class="tens holding"><span class="small">10<sup>x</sup></span><br><span>log<sub>10</sub>(x)</span></button></td>
+            <td>l</td>
+            <td>Logarithmic function with changeable base by holding down for 1 second. If the current set base is not 10, it will show up in the top left.</td>
+        </tr>
+        <tr>
+            <td><button class="tens"><span class="switch1 small">10<sup>x</sup></span><br><span class="switch2">log<sub>10</sub>(x)</span></button></td>
+            <td>E</td>
+            <td>Exponent of 10, equivalent to 10^.</td>
+        </tr>
+        <tr>
+            <td><button class="ees"><span class="small">e<sup>x</sup></span><br><span>ln(x)</span></button></td>
+            <td>L</td>
+            <td>Natural logarithmic function equivalent to log<sub>e</sub>(x).</td>
+        </tr>
+        <tr>
+            <td><button class="ees"><span class="switch1 small">e<sup>x</sup></span><br><span class="switch2">ln(x)</span></button></td>
+            <td>x</td>
+            <td>Exponent of e, equivalent to e^.</td>
+        </tr>
+        <tr>
+            <td><button class="root"><span class="small"><sup>n</sup>√x</span><br><span>√x</span></button></td>
+            <td>r</td>
+            <td>Square root function.</td>
+        </tr>
+        <tr>
+            <td><button class="root"><span class="switch1 small"><sup>n</sup>√x</span><br><span class="switch2">√x</span></button></td>
+            <td>n</td>
+            <td>Nth root function, will add 'n√()' to the bar so the root will have to be before adding. The value before the 'n' represents the root so 3n√(27) will evaluate 3 because that is the cube (third) root of 27.</td>
+        </tr>
+        <tr>
+            <td><button class="snd">2nd</button></td>
+            <td>@</td>
+            <td>Enables 2nd mode (visible in top left of bar).</td>
+        </tr>
+        <tr>
+            <td><button id="dr" class="toggler">RAD</button></td>
+            <td>None</td>
+            <td>Toggles the 'angle' mode for the trigonmetric functions. Default is in degrees which can be toggled to radians. If the current mode is in radians, the result will show up in the top left of the bar.</td>
+        </tr>
+        <tr>
+            <td><button id="er" class="toggler">ROUND</button></td>
+            <td>None</td>
+            <td>Toggles the evaluation precision. Holding down the 'exact' button for 1 second will give a popup to control how many decimal places to round to (between 1 and 9).</td>
+        </tr>
+        <tr>
+            <td><button class="ans holding">Ans</button></td>
+            <td>a</td>
+            <td>References the last value calculated as a variable. Hold down for 1 second to manage data entry history.</td>
+        </tr>
+        <tr>
+            <td><div id="bcContainer"><div id="blinkingCursor"></div></div></td>
+            <td>'Space'</td>
+            <td>Toggles the blinking cursor.</td>
+        </tr>
+        <tr>
+            <td><div id="cc"><img src="../copy.png" alt="copy" id="copy" width="30" height="30"></div></td>
+            <td>None</td>
+            <td>Copies the current bar to clipboard. Paste will be implemented in the next update.</td>
+        </tr>
+        <!-- <tr>
+            <td><div id="pc"><img src="../paste.png" alt="paste" id="paste" width="30" height="30"></div></td>
+            <td>None</td>
+            <td>Pastes current value in clipboard to bar, only if the expression is valid; otherwise an error will be thrown.</td>
+        </tr> -->
+        <tr>
+            <td>
+                <button class="arrow al"><i id="leftarrow"></i></button><br><br>
+                <button class="arrow ar"><i id="rightarrow"></i></button>
+            </td>
+            <td>'ArrowLeft' 'ArrowRight'</td>
+            <td>Moves the current caret position either left or right accordingly.</td>
+        </tr>
+    </table>
+    <button id="next">Next</button>
+    <span id="iconAttr">
+        <a href="https://www.flaticon.com/free-icons/layer" target="_blank" title="layer icons">Layer icons created by Freepik - Flaticon</a><br>
+        <!-- <a href="https://www.flaticon.com/free-icons/paste" title="paste icons">Paste icons created by Pixel perfect - Flaticon</a> -->
+    </span>
+    <script src="./keys.js"></script>
+</body>
+</html>

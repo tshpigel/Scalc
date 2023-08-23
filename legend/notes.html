@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legend</title>
+    <link href='./notes.css' type='text/css' rel='stylesheet'>
+</head>
+<body>
+    <h1>Notes</h1>
+    <table>
+        <tr><td>You can use Ans with "." only if Ans is an integer <strong>→</strong> if Ans is 3 and Ans.4 is evaluated, then 3.4 will be outputted; if Ans is a decimal a period will not be able to be placed</td></tr>
+        <tr><td>Multifactorialing is not allowed <strong>→</strong> 6!! will not evaluate to neither 6×4×2 nor (6!)! but will instead error</td></tr>
+        <tr><td>All buttons with a black border around them are able to be held for 1 second to display a popup <strong>→</strong> with the S<sub>x</sub> and log<sub>10</sub>(x) buttons, pressing the 'a' key within the inputs will set it to 'Ans()' where the value inside the brackets accesses the entry history to return the according value</td></tr>
+        <tr><td>The calculator may repeat 9's or 0's when it shouldn't <strong>→</strong> due to floating point precision issues which are inherent in code, outputs such as 0.30000000000000004 or 0.29999999999999999 may occur, although their effect on the desired value is negligible</td></tr>
+        <tr><td>There are three possible errors to receive <strong>→</strong> CalculationError (most common) when trying to evaluate an invalid expression, ZeroDivisionError when trying to divide by 0, and EntryError when either trying to evaluate when out of space, or using an invalid Ans() value for S or log()</td></tr>
+        <tr><td>Hovering over an entry inputted value in the top left will display the replacement value used <strong>→</strong> hovering over the Ans(2) in LOG<sub>Ans(2)</sub> (after inputting that to the log base popup) will reveal the second answer entry</td></tr>
+        <tr><td>Implicit multiplication is valid <strong>→</strong> having '3π' or '3sin(90)' or '3!3' will be interpreted as '3*π', '3*sin(90)', and '3!*3'</td></tr>
+        <tr><td>The approximate number of vacant entries is calculated based on the average byte size of each entry (each character is 1 byte) <strong>→</strong> there is a total of 300KB of allocated space for the entries</td></tr>
+        <tr><td>An evaluation will automatically convert to scientific notation if the result is either, between -9E-6 and 1E-6 <strong>→</strong> if the evaluation is greater than ~1.8E308 then a CalculationError will be thrown, or if it is between ±5E-324, then 0 will be returned</td></tr>
+        <tr><td>There may be cases of incorrect calculation and situations that were not tested <strong>→</strong> it is important to report any bugs or issues with the calculator so they can be fixed</td></tr>
+        <tr><td>The 'filter' section on the right of the answer entries page is used for finding and managing history entries<strong>→</strong> the inputs are used to narrow down the filter (used for finding information) while the buttons are mostly for selection and deletion</td></tr>
+        <tr><td>The 'Select Mode' checkbox allows the entry to be selected on click while the 'regex' inputs are for regular expressions <strong>→</strong> regex is a mini-programming language used to match text based on a pattern, <a href="https://regexone.com/">https://regexone.com/</a> is an example of a tutorial that may be useful</td></tr>
+    </table>
+    <span id="iconAttr">
+        <a href="https://www.flaticon.com/free-icons/layer" target="_blank" title="layer icons">Layer icons created by Freepik - Flaticon</a><br>
+        <!-- <a href="https://www.flaticon.com/free-icons/paste" title="paste icons">Paste icons created by Pixel perfect - Flaticon</a> -->
+    </span>
+    <button id="prev">Previous</button>
+    <script src='./notes.js'></script>
+</body>
+</html>

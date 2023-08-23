@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Carme&family=Rubik:wght@400;500;600&display=swap');
+
+body {
+    background: #f7f1e3;
+    color: black;
+}
+
+h1 {
+    text-align: center;
+    font-family: 'Rubik', sans-serif;
+    font-size: 2.5em;
+}
+
+#prev {
+    font-family: 'Carme', sans-serif;
+    margin-bottom: 2em;
+    cursor: pointer;
+    position: relative;
+    margin-top: 2em;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+table {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    table-layout: auto;
+    border-collapse: collapse;
+    border: 1px solid black;
+    width: 50%;
+} tr:nth-child(even) {
+    background: #d1ccc0;
+} tr:nth-child(odd) {
+    background: #f1f2f6;
+} td {
+    padding: 1em;
+    text-align: left;
+    font-size: 14px;
+    text-align: center;
+}
+
+#iconAttr {
+    position: fixed;
+    text-align: right;
+    bottom: 0;
+    right: 0;
+    margin: 5px;
+}

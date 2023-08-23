@@ -1,0 +1,218 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Carme&family=Rubik:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap');
+
+body {
+    background: #f7f1e3;
+    color: black;
+}
+
+h1 {
+    text-align: center;
+    font-family: 'Rubik', sans-serif;
+    font-size: 2.5em;
+}
+
+table {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    table-layout: auto;
+    border-collapse: collapse;
+    border: 1px solid black;
+    width: 50%;
+} tr:nth-child(even) {
+    background: #d1ccc0;
+} tr:nth-child(odd) {
+    background: #f1f2f6;
+} th, td {
+    padding: 1em;
+    text-align: left;
+} td {
+    font-size: 14px;
+} th {
+    font-size: 15px;
+} 
+
+.action {
+    width: 75%;
+} .keys {
+    width: 15%;
+} .buttons {
+    width: 10%;
+}
+
+.small {
+    font-size: 9px;
+    opacity: 0.6;
+} .switch1 {
+    color: #b8e994;
+    opacity: 1;
+} .switch2 {
+    opacity: 0.4;
+}
+
+button:not(#next) {
+    font-size: 14px;
+    width: 65px;
+    height: 45px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
+} button:not(#next):active {
+    transform: translateY(2px);
+} .numbers {
+    background: #c56cf0;
+    box-shadow: 0 5px #cd84f1;
+} .numbers:hover {
+    background: #a55eea;
+    box-shadow: 0 5px #8854d0;
+} .mem, .trig, .brac, .del, .clear, .combs, .tens, .ees, .root, .xs, .var, .bop {
+    background: #686de0;
+    box-shadow: 0 5px #4834d4;
+} .mem:hover, .trig:hover, .brac:hover, .del:hover, .clear:hover, .combs:hover, .tens:hover, .ees:hover, .root:hover, .xs:hover, .var:hover, .bop:hover {
+    background: #4b7bec;
+    box-shadow: 0 5px #3867d6;
+} .pom, .opers {
+    background: #f7d794;
+    box-shadow: 0 5px #f5cd79;
+} .pom:hover, .opers:hover {
+    background: #eccc68;
+    box-shadow: 0 5px #ffa502;
+} .trig {
+    font-size: 14px !important;
+} .toggler {
+    background: #ffbe76;
+    font-size: 14px !important;
+    box-shadow: 0 5px #f0932b;
+} .toggler:hover {
+    background: #FEA47F;
+    box-shadow: 0 5px #F97F51;
+} .ans {
+    background: #778ca3;
+    box-shadow: 0 5px #4b6584;
+} .ans:hover {
+    background: #a4b0be;
+    box-shadow: 0 5px #747d8c;
+} .snd {
+    background: #ff6b81;
+    box-shadow: 0 5px #ff4757;
+    color: rgba(0, 0, 0, 0.3);
+} .snd:hover {
+    background: #ef5777;
+    box-shadow: 0 5px #f53b57;
+}
+
+#next {
+    font-family: 'Carme', sans-serif;
+    margin-bottom: 2em;
+    cursor: pointer;
+    position: relative;
+    margin-top: 2em;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.holding {
+    border: 2px solid black !important;
+}
+
+.frac {
+    display: inline-block;
+    text-align: center;
+} .frac, .top, .bottom {
+    padding-left: 2px;
+    padding-right: 2px;
+} .bottom {
+    border-top: 1px solid black;
+    display: block;
+}
+
+.hasfrac:not(.frac) {
+    display: block;
+}
+
+#iconAttr {
+    position: fixed;
+    text-align: right;
+    bottom: 0;
+    right: 0;
+    margin: 5px;
+}
+
+#bcContainer {
+    background: #ffffff;
+    box-shadow: 0 5px #f1f2f6;
+    width: 65px;
+    height: 45px;
+    border-radius: 7px;
+    cursor: pointer;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    transition: 0.2s;
+}  #bcContainer:hover {
+    background: #ecf0f1;
+    box-shadow: 0 5px #dfe6e9;
+}
+
+#blinkingCursor {
+    width: 2px;
+    height: 30px;
+    background: black;
+    animation: blink 0.8s linear infinite;
+}
+
+@keyframes blink {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+#cc, #pc {
+    width: 65px;
+    height: 45px;
+    background: #78e08f;
+    box-shadow: 0 5px #b8e994;
+    border-radius: 15px;
+    transition: 0.2s;
+} #cc:hover, #pc:hover {
+    background: #2ed573;
+    box-shadow: 0 5px #7bed9f;
+}
+
+#copy, #paste { 
+    padding: 8px 16px 8px 16px;
+    cursor: pointer; 
+    transition: 0.2s;
+}
+
+.arrow {
+    background: #1e272e;
+    border-radius: 3px !important;
+    z-index: 2;
+    box-shadow: none;
+    height: 20px !important;
+} .arrow:hover {
+    background: #000;
+    box-shadow: none;
+} .arrow>* {
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 2px;
+    position: relative;
+    bottom: 3.5px;
+} #rightarrow {
+    transform: rotate(-45deg);
+    margin-right: 2px;
+    -webkit-transform: rotate(-45deg);
+} #leftarrow {
+    transform: rotate(135deg);
+    margin-left: 2px;
+    -webkit-transform: rotate(135deg);
+} .arrow:active {
+    transform: translateY(1px);
+}
