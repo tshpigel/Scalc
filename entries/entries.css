@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&family=REM:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#table {
+    border-collapse: collapse;
+    width: 60%;
+    font-family: 'Inter', sans-serif;
+    overflow-x: scroll;
+} 
+
+#fsd {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 40%;
+    height: 100vh;
+    background: #ecf0f1;
+    display: flex;
+    flex-wrap: wrap;
+} #filter {
+    position: relative;
+    width: 100%;
+    text-align: center;
+} 
+
+#names {
+    text-transform: uppercase;
+}
+
+.td, .th {
+    border-bottom: 5px solid #7f8fa6;
+    box-shadow: inset 0px -5px 0 0 #000;
+    text-align: left;
+    padding: 20px;
+}
+
+.close {
+    cursor: pointer;
+} .close:hover {
+    transition: 0.2s;
+    color: red;
+}
+
+h2 {
+    font-size: 25px;
+} h4 {
+    font-size: 20px;
+    font-weight: 600;
+    text-align: left;
+    margin-left: 15px;
+} .box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-family: 'Mukta', sans-serif;
+    font-size: 15px;
+} .rest > * {
+    margin: 5px;
+} .rest {
+    position: relative;
+    width: 100%;
+    right: 0;
+}
+
+.final {
+    position: relative;
+    height: 3em;
+    border: none;
+    color: black;
+    text-transform: uppercase;
+} .split {
+    width: 50%;
+} .split3 {
+    width: calc(100% / 3);
+} .g, .filt {
+    background: #82d1a3;
+} .g:hover {
+    background: #70c292;
+} .r {
+    background: #e96455;
+} .r:hover {
+    background: #d75b4d;
+} .b, .sel {
+    background: #8accf9;
+} .b:hover {
+    background: #7cbce7;
+}
+
+button {
+    cursor: pointer;
+    font-family: 'REM', sans-serif;
+}
+.c {
+    display: flex;
+    align-items: center;
+} .c span {
+    font-size: 15px;
+}
+
+input::-webkit-inner-spin-button {
+    display: none;
+}
+
+input:not(input[type="checkbox"]) {
+    width: 10em;
+    height: 2em;
+    border: none;
+    padding: 5px;
+    outline: none;
+    font-family: 'Montserrat', sans-serif;
+}
+
+input[type="datetime-local"] {
+    width: fit-content !important;
+}
+
+#err {
+    text-align: center;
+    color: red;
+    width: 100%;
+    font-size: 13px;
+}
