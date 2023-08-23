@@ -11,7 +11,7 @@
     },
     "action": {
         "default_icon": "scr.png",
-        "default_popup": "calc/calc.html"
+        "default_popup": "main/calc.html"
     },
     "permissions": ["activeTab", "clipboardRead"]
 }
