@@ -26,17 +26,26 @@
     <title>Calculator</title>
 </head>
 <body>
-    <a id="legendLink" target="_blank" href="keysAndNotes.html">Menu</a>
-    <span id="extra"></span>
-    <button id="arrow"><i id="leftarrow"></i></button>
-    <button id="arrow"><i id="rightarrow"></i></button>
-    <div id="err"><span id="errtext"></span></div>
+    <a id="legendLink" target="_blank" href="../legend/keys.html">legend</a>
+    <span id="copyCont">
+        <img src="../copy.png" alt="copy" id="copy" width="30" height="30"><br>
+        <span>Bar was successfully copied</span>
+    </span> 
+    <!-- <span id="pasteCont">
+        <img src="../paste.png" alt="paste" id="paste" width="30" height="30"><br>
+        <span>Expression was pasted successfully</span>
+    </span> -->
+    <div id="extra"></div>
+    <button class="arrow al"><i id="leftarrow"></i></button>
+    <button class="arrow ar"><i id="rightarrow"></i></button>
+    <span id="baseSubPopupParent"><div id="baseSubPopup"></div></span>
+    <div id="bcContainer"><div id="blinkingCursor"></div></div>
     <div id="body">
         <input id="bar" spellcheck="false">
         <div id="main">
             <button data-valIx="1" data-val="1" class="numbers val">1</button>
             <button data-valIx="1" data-val="2" class="numbers val">2</button>
-            <button data-valIx="1" data-val="3" class="numbers">3</button>
+            <button data-valIx="1" data-val="3" class="numbers val">3</button>
             <br>
             <button data-valIx="1" data-val="4" class="numbers val">4</button>
             <button data-valIx="1" data-val="5" class="numbers val">5</button>
@@ -46,12 +55,12 @@
             <button data-valIx="1" data-val="8" class="numbers val">8</button>
             <button data-valIx="1" data-val="9" class="numbers val">9</button>
             <br>
-            <button data-valIx="1" data-val="0" class="numbers" id="zero">0</button>
+            <button data-valIx="1" data-val="0" class="numbers val" id="zero">0</button>
 
-            <button data-valIx="3" data-val="Ans" id="ans" class="ans val">Ans</button>
+            <button data-valIx="3" data-val="Ans" id="ans" class="ans val holding">Ans</button>
 
             <div id="dotneg">
-                <button data-valIx="1" data-val="." id="bottom" class="dot operat val">.</button>
+                <button data-valIx="1" data-val="." id="bottom" class="dot operat basic val">.</button>
                 <button id="top" class="neg operat">±</button>
             </div>
             <div id="drer">
@@ -61,21 +70,21 @@
         </div>
 
         <div id="ansEntriesCont">
+            <span id="eClear">All entries have been cleared</span>
             <p id="entryLeft"></p>
             <button id="entries">Entries</button>
             <button id="exit">Exit</button>
             <button id="resetC">Reset</button>
         </div>
-        <p id="eClear">All entries have been cleared</p>
 
         <div id="equ">
             <button id="equb" class="equ operat"> = </button>
         </div>
         <div id="operat">
-            <button data-valIx="1" data-val="÷" class="operat val">÷</button><br>
-            <button data-valIx="1" data-val="×" class="operat val">×</button><br>
-            <button data-valIx="1" data-val="-" class="operat val"> - </button><br>
-            <button data-valIx="1" data-val="+" class="operat val">+</button><br>
+            <button data-valIx="1" data-val="÷" class="operat basic val">÷</button><br>
+            <button data-valIx="1" data-val="×" class="operat basic val">×</button><br>
+            <button data-valIx="1" data-val="-" class="operat basic val"> - </button><br>
+            <button data-valIx="1" data-val="+" class="operat basic val">+</button><br>
         </div>
         <div id="snd">
             <button id="sndb" class="snd"><span id="sndsub">2nd</span></button>
@@ -83,14 +92,14 @@
         <div id="right">
             <button class="val" data-valIx="1" data-specValIx="1" data-val="π" data-specVal="e" id="pi"><span class="small">e</span><br><span class="nb">π</span></button>
             <button class="val" data-valIx="2" data-specValIx="3" data-val="√()" data-specVal="n√()" id="root"><span class="small"><sup>n</sup>√x</span><br><span class="nb">√x</span></button>
-            <button class="val" data-valIx="1" data-specValIx="1" id="SIP" data-val="!" data-specVal="S" id="fac"><span class="small">S<sub>x</sub></span><br><span class="nb">x!</span></button>
-            <button class="val" data-valIx="1" data-specValIx="2" data-val="%" data-specVal="1/" id="perc"><span class="small">x<sup>-1</sup></span><br><span class="nb">x%</span></button>
+            <button class="val" data-valIx="1" data-specValIx="1" data-val="!" id="perc" data-specVal="%" id="fac"><span class="small">x% <sub></sub></span><br><span class="nb">x! <sub></sub></span></button>
+            <button class="val" data-valIx="1" data-specValIx="2" data-val="C" data-specVal="P" id="pAc"><span class="small"><sub>n</sub>P<sub>r</sub></span><br><span class="nb"><sub>n</sub>C<sub>r</sub></span></button>
             <button class="val" data-valIx="4" data-specValIx="7" data-val="sin()" data-specVal="arcsin()" id="sin"><span class="small">sin<sup>-1</sup>(x)</span><br><span class="nb">sin(x)</span></button>
             <button class="val" data-valIx="4" data-specValIx="7" data-val="cos()" data-specVal="arccos()" id="cos"><span class="small">cos<sup>-1</sup>(x)</span><br><span class="nb">cos(x)</span></button>
-            <button class="val" data-valIx="4" data-specValIx="7" data-val="tan()" data-specVal="arctan()" id="tan"><span class="small">tan<sup>-1</sup>(x)</span><br><span class="nb">tan(x)</span></button>
-            <button class="val" data-valIx="2" data-specValIx="1" data-val="^2" data-specVal="^" id="power"><span class="small">n<sup>x</sup></span><br><span class="nb">x<sup>2</sup></span></button>
+            <button class="val" data-valIx="4" data-specValIx="7" data-val="tan()" data-specVal="arctan()" id="tan"><span class="small">tan<sup>-1</sup>(x) <sub></sub></span><br><span class="nb">tan(x) <sub></sub></span></button>
+            <button class="val" data-valIx="1" data-specValIx="1" data-val="^" data-specVal="S" id="SIPower"><span class="small">S<sub id="baseSubSer">x</sub></span><br><span class="nb">n<sup>x</sup></span></button>
         </div>
-        <button class="val" data-valIx="4" data-specValIx="1" data-val="log()" data-specVal="E" id="logE"><span class="small">10<sup>x</sup></span><br><span class="nb">log<sub>10</sub>(x)</span></button>
+        <button class="val holding" data-valIx="4" data-specValIx="1" data-val="log()" data-specVal="E" id="logE"><span class="small">10<sup>x</sup></span><br><span class="nb">log<sub id="baseSub">10</sub>(x)</span></button>
         <button class="val" data-valIx="3" data-specValIx="4" data-val="ln()" data-specVal="exp()" id="lnexp"><span class="small">e<sup>x</sup></span><br><span class="nb">ln(x)</span></button>
         <div id="memcb">
             <div id="memorypb">
@@ -99,8 +108,8 @@
                 <button id="mm" class="memory">M-</button>
                 <button id="mr" class="memory">MR</button>
                 <button data-valIx="1" data-val="()" class="val" id="brack">( )</button>
-                <button>DEL</button>
-                <button id="cac">C</button>
+                <button id="del">DEL</button>
+                <button id="cac">AC</button>
             </div>
         </div>
     </div>
@@ -110,19 +119,28 @@
         <button class="ser" id="geo">Geometric</button>
 
         <h2>Starting Value</h2>
-        <input id="stval" type="number" value="1">
+        <input id="stval" type="text" value="1">
         <h2 id="diffh2">Difference</h2>
-        <input id="diff" type="number" value="1">
+        <input id="diff" type="text" value="1">
 
         <button id="save">Save</button>
         <button id="reset">Reset</button>
     </div>
 
     <div id="exc_rndChoiceCont">
-        <p id="fixChoiceDesc">Decimals (max 6)</p>
+        <p id="fixChoiceDesc">Decimals (max 9)</p>
         <input type="number" id="fixChoice" value="2">
-        <button id="saveB">Save</button>
-        <button id="resetB">Reset</button>
+        <div id="srb">
+            <button id="saveB">Save</button>
+            <button id="resetB">Reset</button>
+        </div>
+    </div>
+
+    <div id="logBaseCont">
+        <p id="baseChoiceDesc">Choose the value of <em>x</em> in log<sub>x</sub>()</p>
+        <input id="baseChoice" type="text" value="10">
+        <button id="saveD">Save</button>
+        <button id="resetD">Reset</button>
     </div>
     <script src='calc.js'></script>
 </body>
