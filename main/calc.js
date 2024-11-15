@@ -2,7 +2,10 @@
 
 const max = 3e5;
 const lss = new Blob(Object.values(localStorage)).size;
+
+// console.log(localStorage.proxyStorage);
 const extraObj = {};
+
 const allowedPlusChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'A', 'Backspace', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 const lsEA = (localStorage.entries) ? localStorage.entries.split(',') : [];
 const LSF = prop => (localStorage[prop] || '').split(',').filter(e => e.length > 0);
@@ -17,6 +20,128 @@ localStorage.entries = lsE.join(',') + ',';
 localStorage.date = lsD.join(',') + ',';
 const ansRgx = /Ans\((\d+)\)/i;
 const digKeyCodeArr = Array.from({ length: 9 }, (_, i) => i + 48);
+const vnl = {}; // variable name list
+const hvqo = {}; // hover value query object
+const themes = {
+    default: {
+        // icon: ["c56cf0#eae5d8", "f7d794#eccc68"],
+        bg: "linear-gradient(90deg, hsla(238, 100%, 71%, 1) 0%, hsla(295, 100%, 84%, 1) 100%)",
+        body: "#c8d6e5",
+        bodyshadow: "#222f3e",
+        barnotes: "#000",
+        copy: ["78e08f#b8e994", "2ed573#7bed9f", "#000"],
+        paste: ["ca53b0#d770c1", "af4898#be66ab", "#000"],
+        curbut: ["ffffff#f1f2f6", "ecf0f1#dfe6e9", "#000"],
+        textcol: "#000",
+        holdbtnborder: "#000",
+        arrows: ["1e272e#000000", "#fff"],
+        memvar: {
+            subbtns: ["686de0#4834d4", "4b7bec#3867d6", "#000"],
+            bg: "rgba(255, 255, 255, 0.7)"
+        },
+        logserbase: {
+            constant: "#eccc68",
+            answer: "#0be881",
+            error: "#ea2027"
+        },
+        delacbrac: ["686de0#4834d4", "4b7bec#3867d6", "#000"],
+        snd: ["ff6b81#ff4757", "ef5777#f53b57", "#000"],
+        num: ["c56cf0#cd84f1", "a55eea#8854d0", "#000"],
+        ans: ["778ca3#4b6584", "a4b0be#747d8c", "#000"],
+        radround: ["ffbe76#f0932b", "fea47f#f97f51", "#000"],
+        opers: ["f7d794#f5cd79", "eccc68#ffa502", "#000"],
+        specfncs: {
+            normal: {
+                base: ["686de0#4834d4", "4b7bec#3867d6", "#000"],
+                up: ["#000", 0.6]
+            },
+            sndmode: {
+                base: ["686de0#4834d4", "4b7bec#3867d6", "#000"],
+                up: ["#b8e994", 1]
+            }
+        }
+    },
+    light: {
+        // icon: ["f7f1e3#eae5d8", "f5f6fa#eeeff4"],
+        bg: "#d8d5d5",
+        body: "#e9eef3",
+        bodyshadow: "#404040",
+        barnotes: "#000",
+        copy: ["55e6c1#9aecdb", "33d9b2#84dbc7", "#000"],
+        paste: ["df6886#bf5771", "cc5170#b9264b", "#000"],
+        curbut: ["ffffff#f1f2f6", "ecf0f1#dfe6e9", "#000"],
+        textcol: "#000",
+        holdbtnborder: "#142c4c",
+        arrows: ["1e272e#000000", "#fff"],
+        memvar: {
+            subbtns: ["dfe4ea#ced6e0", "b6c9e0#98b5da", "#000"],
+            bg: "rgba(255, 255, 255, 0.7)"
+        },
+        logserbase: {
+            constant: "#868437",
+            answer: "#00bd65",
+            error: "#ea2027"
+        },
+        delacbrac: ["dfe4ea#ced6e0", "b6c9e0#98b5da", "#000"],
+        snd: ["f8efba#fad390", "f6e58d#f9ca24", "#000"],
+        num: ["f7f1e3#d1ccc0", "f2e8cb#e9cf71", "#000"],
+        ans: ["d3e4e6#c3d6d8", "d1d8e0#a5b1c2", "#000"],
+        radround: ["c5cfcb#a2aca8", "a9c4b9#869d94", "#000"],
+        opers: ["eeeff4#cad3c8", "f5f6fa#95afc0", "#000"],
+        specfncs: {
+            normal: {
+                base: ["f3cfe7#dfb5d1", "d293bd#cb76af", "#000"],
+                up: ["#000", 0.6]
+            },
+            sndmode: {
+                base: ["f3cfe7#dfb5d1", "d293bd#cb76af", "#000"],
+                up: ["#192b4a", 1]
+            }
+        }
+    },
+    dark: {
+        // icon: ["2f3542#57606f", "3d3d3d#4b4b4b"],
+        bg: "#272530",
+        body: "#131216",
+        bodyshadow: "#464548",
+        barnotes: "#fff",
+        copy: ["3784dd#2b66aa", "006be8#1c66ba","#000"],
+        paste: ["ffa134#dc8d33", "e97c00#b36600", "#000"],
+        curbut: ["1a1a1a#504c4c", "2d2d2d#686464", "#fff"],
+        textcol: "#fff",
+        holdbtnborder: "#e8dfdf",
+        arrows: ["badeee#a3c3d1", "#000"],
+        memvar: {
+            subbtns: ["192045#282f53", "243069#36417c", "#fff"],
+            bg: "rgba(229, 252, 255, 0.8)"
+        },
+        logserbase: {
+            constant: "#eccc68",
+            answer: "#0be881",
+            error: "#ea2027"
+        },
+        delacbrac: ["3d4955#506070", "2f4051#385069", "#fff"],
+        snd: ["3939f6#5c5cf3", "4545ae#5a5a9f", "#fff"],
+        num: ["11111e#212137", "232336#313162", "#fff"],
+        ans: ["2b2b4b#3e3e65", "424258#5e5e76", "#fff"],
+        radround: ["2b5364#436b7c", "296c88#4892b2", "#fff"],
+        opers: ["24222d#33313a", "312d42#464258", "#fff"],
+        specfncs: {
+            normal: {
+                base: ["222123#3b393c", "2e2837#433c4e", "#fff"],
+                up: ["#fff", 0.4]
+            },
+            sndmode: {
+                base: ["f3cfe7#dfb5d1", "d293bd#cb76af", "#fff"],
+                up: ["#fc9a5e", 1]
+            }
+        }
+    }
+};
+
+localStorage.scalcTheme = localStorage.scalcTheme ?? 'default';
+TBT(localStorage.scalcTheme);
+let curTheme = themes[localStorage.scalcTheme];
 const defaultSeriesConfigSettings = {
     start : "1",
     type : 'arithmetic',
@@ -55,8 +180,8 @@ const ansE = document.querySelector("#ans");
 const del = document.querySelector("#del");
 const copy = document.querySelector("#copy");
 const copyResult = document.querySelector("#copyCont span");
-// const paste = document.querySelector("#paste");
-// const pasteResult = document.querySelector("#pasteCont span");
+const paste = document.querySelector("#paste");
+const pasteResult = document.querySelector("#pasteCont span");
 const stval = document.querySelector('#stval');
 const serDiff = document.querySelector('#diff');
 const SIP = document.querySelector('#SIPower');
@@ -89,9 +214,32 @@ const baseSubPopup = document.querySelector('#baseSubPopup');
 const resetD = document.querySelector('#resetD');
 const logInput = document.querySelector('#baseChoice');
 const lbc = document.querySelector("#logBaseCont");
+const baseSubLog = document.querySelector("#baseSub");
 const bnenrne = document.querySelectorAll("button:not(#entries):not(#resetC):not(#exit)");
 const bnsnsnr = document.querySelectorAll("button:not(.ser):not(#save):not(#reset)");
 const arrows = [document.querySelector(".ar"), document.querySelector(".al")];
+const dmem = document.querySelector("#dmem");
+const dvar = document.querySelector("#dvar");
+const varval = document.querySelector("#varval");
+const varname = document.querySelector("#varname");
+const [varb1, varb2] = document.querySelectorAll("#dvar > h5:nth-child(1) > button");
+const flexbut = document.querySelector("#flexbut");
+const themeLink = document.querySelector("#themeLink");
+const themeUI = document.querySelector("#themes");
+
+const proxEOBJ = new Proxy(extraObj, {
+    deleteProperty: (t, p) => {
+        proxyDelete(t, p);
+        // localStorage.proxyStorage = JSON.stringify(proxEOBJ);
+        // console.log('del proxy', localStorage.proxyStorage);
+    },
+    set: (t, p, v) => {
+        t[p] = v;
+        proxySet(t);
+        // localStorage.proxyStorage = JSON.stringify(proxEOBJ);
+        // console.log('set proxy', localStorage.proxyStorage);
+    }
+});
 
 const add = {
     conversion : "+",
@@ -114,6 +262,14 @@ const add = {
     "÷" : div,
     "." : dot
 };
+
+const ansFunc = {
+    conversion : "ansf($1)",
+    variable : "l",
+    block : "Ans(",
+    fnc : true,
+};
+
 const keyCodeList = [6, 13, 33, 37, 40, 42, 43, 45, 46, 47, ...digKeyCodeArr, 61, 64, 69, 76, 83, 94, 97, 99, 101, 108, 110, 112];
 const operArr = [...Object.keys(simpleOper), "^"];
 
@@ -188,8 +344,7 @@ const pieE = {
     block : "log(",
     fnc : true,
     snd : {
-        conversion : "ET",
-        variable : "l"
+        conversion : "ET"
     }
 }; const expoSpec = {
     conversion : "pow($1,$2)",
@@ -214,6 +369,9 @@ const pieE = {
         block : "exp(",
         fnc : true
     }
+}; const accvar = { // actual variable
+    conversion : "V$1",
+    variable : "b"
 };
 const delMoveArr = [pieE, root, facPerc, permsAndCombs, sin, cos, tan, logE, expoSpec, lnexp];
 const blockArr = [root, sin, cos, tan, lnexp, logE];
@@ -222,9 +380,134 @@ blockArr.forEach(e => {
     if(!!e.snd?.block) fullBlockArr.push(e.snd.block);
     fullBlockArr.push(e.block);
 });
+fullBlockArr.push("(");
 
+loadTheme(curTheme);
 
 // helper functions
+
+function HVQS() {
+    return document.querySelector("#hv");
+}
+
+function decFS() { // decrease font size
+    const bvl = bar.value.length;
+    if(bvl > 15 && bvl <= 20) bar.style.fontSize = "35px";
+    else if (bvl > 20 && bvl <= 25) bar.style.fontSize = "30px";
+    else if (bvl > 25) bar.style.fontSize = "25px";
+    else bar.style.fontSize = "40px";
+}
+
+function TBT(theme) { // theme border toggle
+    document.querySelector(`#${theme}T div`).classList.toggle('seltheme');
+    document.querySelector(`#${theme}T span`).classList.toggle('boldtheme');
+}
+
+function loadTheme(thm) {
+    let extss = ''; // external style sheet
+    function bcbsh(sel, arr) { // button color, box shadow, hover (selector, array)
+        const elems = document.querySelectorAll(sel);
+        function hashSplit(str) { return str.split('#').map(e => '#' + e); }
+        if(arr.length === 3) {
+            const [reg, hov, col] = arr; // [regular, hover, color]
+            const regc = hashSplit(reg);
+            const hovc = hashSplit(hov);
+            elems.forEach(e => {
+                e.style.background = `${regc[0]}`;
+                e.style.boxShadow = '0 5px ' + regc[1];
+                e.style.color = col;
+            });
+            extss += `${sel}:hover {
+                background: ${hovc[0]} !important;
+                box-shadow: 0 5px ${hovc[1]} !important;
+            }\n`;
+        } else if (arr.length === 2) {
+            const [rhf, col] = arr; // [regular-hover function, color]
+            const rhfc = hashSplit(rhf);
+            elems.forEach(e => {
+                e.style.background = rhfc[0];
+                e.style.color = col;
+            });
+            extss += `${sel}:hover {
+                background: ${rhfc[1]} !important;
+            }\n`;
+        }
+    }
+    document.body.style.background = thm.bg;
+    document.querySelector('input').style.background = thm.body;
+    document.querySelector('#body').style.background = thm.body;
+    document.querySelector('#body').style.border = `3px solid ${thm.body}`;
+    document.querySelector('#body').style.boxShadow = `15px 15px 0 ${thm.bodyshadow}`;
+    extra.style.color = thm.barnotes;
+    extss += `.holding {
+        border: 2px solid ${thm.holdbtnborder};
+    }\n`
+    bcbsh('#copy', thm.copy);
+    bcbsh('#paste', thm.paste);
+    bcbsh('#bcContainer', thm.curbut);
+    document.querySelector('#blinkingCursor').style.background = thm.curbut[2];
+    bar.style.color = thm.textcol;
+    extss += `@keyframes fadecursorout {
+        0% {caret-color: ${thm.textcol};}
+        100% {caret-color: transparent;}
+    } @keyframes fadecursorin {
+        0% {caret-color: transparent;}
+        100% {caret-color: ${thm.textcol};}
+    }\n`;
+
+    bcbsh('.arrow', thm.arrows);
+    // document.querySelectorAll(".arrow i").forEach(a => a.style.border = `solid ${thm.arrows[1]}`);
+    extss += `.arrow>* {
+        border: solid ${thm.arrows[1]};
+    }\n`;
+
+
+    const [col, opac] = thm.specfncs[sndactive ? "sndmode" : "normal"].up;
+    smalls.forEach(e => {
+        e.style.color = col;
+        e.style.opacity = opac;
+    });
+
+    const bst = baseSub.textContent;
+    const bslt = baseSubLog.textContent;
+    if(proxEOBJ.sequence || proxEOBJ.log) {
+        if(proxEOBJ.sequence)
+            baseSub.style.color = thm.logserbase[bst === 'A' ? "answer" : (bst === 'E' ? "error" : "constant")];
+        if(proxEOBJ.log)
+            baseSubLog.style.color = thm.logserbase[bslt === 'A' ? "answer" : (bslt === 'E' ? "error" : "constant")];
+    } else {
+        baseSub.style.color = thm.color;
+        baseSubLog.style.color = thm.color;
+    }
+    
+
+    ['.memory', '#mem', '#var'].forEach(mv => bcbsh(mv, thm.memvar.subbtns));
+    document.querySelectorAll('#dmem, #dvar').forEach(d => d.style.background = thm.memvar.bg);
+    ['#brack', '#del', '#cac'].forEach(dab => bcbsh(dab, thm.delacbrac));
+    bcbsh('.snd', thm.snd);
+    bcbsh('.numbers', thm.num);
+    bcbsh('#ans', thm.ans);
+    bcbsh('#drer *', thm.radround);
+    bcbsh('.operat', thm.opers);
+    bcbsh('.specs', thm.specfncs.normal.base);
+
+    const sndcols = thm.specfncs.sndmode.base;
+    extss += `.sndcolor {
+        background: #${sndcols[0].slice(0, 6)};
+        box-shadow: 0 5px ${sndcols[0].slice(6)};
+        color: ${sndcols[2]};
+    } .sndcolor:hover {
+        background: #${sndcols[1].slice(0, 6)};
+        box-shadow: 0 5px ${sndcols[1].slice(6)};
+    }\n`;
+
+    const ss = document.createElement('style');
+    ss.appendChild(document.createTextNode(extss));
+
+    const toReplace = document.querySelector('head style');
+    if(toReplace) document.querySelector('head').removeChild(toReplace);
+    document.querySelector('head').appendChild(ss);
+}
 
 function ERR(m) {
     const err = document.createElement("div");
@@ -245,6 +528,7 @@ function ERR(m) {
             bar.setSelectionRange(ePos, ePos);
         }, 1000);
     }, 3000);
+    timesClickedAfterEvaluation++;
 }
 
 function count(c, s) {
@@ -260,11 +544,42 @@ function perms(n, r) {
     return fac(n) / (fac(n - r) * fac(r));
 }
 
+function rvv(name) { // retrieve variable value
+    const val = vnl?.[name];
+    console.log(name, val, 'rvvcall');
+    if(!val) {
+        ERR("Invalid Variable Name");
+        return "VariableError";
+    }
+
+    return val;
+}
+
 function NP(s) { // negative parse
     if(s[0] === '⁻') return -s.slice(1);
     else return +s;
 } function RNP(s) { // reverse negative parse
     return s.replace(/^-(\d+(?:\.\d+)?)$/, "⁻$1");
+}
+
+
+function ansLoc(ix) {
+    const eval = localStorage.entryVals ? localStorage.entryVals : '';
+    return eval.split(',')[ix - 1];
+}
+
+function ansLocEval(ix) {
+    if(ix > LSF("entries").length) {
+        ERR(`Ans #${ix} is out of bounds`);
+        return 'EntryError';
+    }
+    const a = ansLoc(ix);
+    if(a.includes("Error")) {
+        ERR(`Ans #${ix} results in ${a}`);
+        return 'EntryError';
+    }
+
+    return a;
 }
 
 function CEVAL(str, op = false) {
@@ -292,6 +607,7 @@ function CEVAL(str, op = false) {
         "seq": [ser2, 1],
         "nth": [nth2, 1],
         "sqr": [Math.sqrt, 1],
+        "ansf": [ansLocEval, 1],
         "pow": [Math.pow, 2],
         "loga": [LOG, 1],
         "laun": [LN, 1],
@@ -302,14 +618,22 @@ function CEVAL(str, op = false) {
     let c = str;
     c = c.replaceAll('pi', Math.PI);
     c = c.replaceAll('euler', euler);
-    c = c.replaceAll('ET', '10^');
+    c = c.replaceAll(/(\d)?(ET)/g, (_, p1) => {
+        return (p1 ? p1 : 1) + "*10^";
+    });
+    console.log(c, 'cevar log');
+
     try {
         while(/\(.*\)/.test(c)) {
             c = c.replace(/([a-zA-Z]+)?\(([^()]*)\)/, (_, p1, p2) => {
                 if(p1) {
-                    const args = p2.split(',').map(e => isNaN(e) ? NP(CEVAL(e)) : (e.length === 0 ? '' : +NP(e))).filter(Boolean);
+                    console.log(p1, p2, 'p1 p2 log')
+                    const args = p2.split(',').map(e => isNaN(e) ? NP(CEVAL(e)) : (e.length === 0 ? '' : +NP(e)));
+                    console.log(args);
+                    //const args2 = args.filter(Boolean);
+                    console.log(args, 'args log');
                     if(args.length < funcs[p1][1]) {
-                        console.log('args error');
+                        console.log('args error', p2);
                         if(!op) ERR("Invalid Expression");
                         c = "CalculationError";
                         return c;
@@ -317,7 +641,7 @@ function CEVAL(str, op = false) {
                         return RNP(String(funcs[p1][0](...args)));
                     }
                 }
-                else return String(CEVAL(p2));
+                else return String(CEVAL(p2, op));
             });
         }
         console.log(c);
@@ -325,7 +649,7 @@ function CEVAL(str, op = false) {
             let r = c;
             while(new RegExp(`[${op}]`).test(r) && !/^-\d+(\.\d+)?$/.test(r)) {
                 let br = r; // before replace
-                r = r.replace(new RegExp(`${nReg}([${op}])${nReg}`, 'g'), cb);
+                r = r.replace(new RegExp(`${nReg}([${op}])${nReg}`), cb);
                 let ar = r; // after replace
                 console.log(br, ar);
                 if(ar === br) break;
@@ -342,9 +666,14 @@ function CEVAL(str, op = false) {
             if(!op) ERR("Division By 0");
             return c;
         }
-        c = srepl('+-', (_, p1, p2, p3) => String(p2 === '+' && !p1.endsWith('e') ? NP(p1) + NP(p3) : NP(p1) - NP(p3)));
+        console.log(c, 'before subtraction')
+        c = srepl('+-', (_, p1, p2, p3) => {
+            console.log('srepl', p1, p2, p3);
+            return RNP(String(p2 === '+' && !p1.endsWith('e') ? NP(p1) + NP(p3) : NP(p1) - NP(p3)))
+        });
+        console.log(c, 'after subtraction')
     } catch(e) {
-        console.log('main error', op);
+        console.log('main error, op:', op);
         if(!op) ERR("Invalid Expression");
         c = "CalculationError";
     }
@@ -358,12 +687,18 @@ function CEVAL(str, op = false) {
         c = "CalculationError";
     }
 
-    c = expoParse(c);
+    c = expoParse(c).replace(/(?<=\.\d*)0+$/, "");
+    c = c.replace(/\.$/, "");
+
+    console.log(c, 'csldkfjs');
+
+    decFS();
+
     return c.includes("Error") ? c : RNP(c);
 }
 
 function expoParse(s) {
-    if(+s !== 0 && +s >= 1e15 || +s > -9e-6 && +s < 1e-6) return (+s).toExponential()
+    if(+s >= 1e15 || +s !== 0 && +s > -9e-6 && +s < 1e-6) return (+s).toExponential()
         .replace(/(\d(?:\.\d{8,})?)e([+-]\d+)/, (_, p1, p2) => 
             `${p1.slice(0, 11)}E${(p2[0] === '+' ? '' : '⁻') + p2.slice(1)}`)
     else return s;
@@ -383,7 +718,7 @@ function limit(num) {
     const numStr = [...num.toString()];
     const maxLim = 16;
     if(numStr.length > maxLim) {
-        num = Number(num).toFixed(maxLim);
+        num = RNP(NP(num).toFixed(maxLim));
     }
     return num;
 }
@@ -428,7 +763,7 @@ function brackForClick(ix, str, adder) {
 }
 
 function fullMSCS(val) {
-    return !(!!val.match(/^\d+$/)) ? `<span class="ansHoverValue">${val}</span>` : val;
+    return !(!!val.match(/^\d+$/)) ? `<span class="hoverValue"><sub>${val}</sub></span>` : `<sub>${val}</sub>`;
 }
 
 function gamma(z) {
@@ -458,7 +793,7 @@ function close(num) {
     const rgx9 = /\.9{9,}/;
     const rgx0 = /^(?<!0)\.0{9,}|\.\d*0+$/;
     const nts = String(num);
-    console.log(nts);
+    console.log(nts, 'nts');
     if (rgxi.test(nts) && rgx9.test(nts)) return undefined;
     else return rgx9.test(nts) || rgx0.test(nts);
 }
@@ -473,10 +808,12 @@ function closeTemplate(main) {
 
 function realTemplate(val, fnc) {
     const main = Math[fnc](val * Math.PI / 180);
-    return closeTemplate(main);
+    console.log('main', main);
+    return (main / 1.2246467991473532e-16) % 1 === 0 && main < 1e-8 && main > -1e-8 && fnc !== 'cos' ? 0 : closeTemplate(main);
 } function fakeTemplate(val, fnc) {
     const main = Math[fnc](val);
-    return closeTemplate(main);
+    console.log('main', main);
+    return (main / 1.2246467991473532e-16) % 1 === 0 && main < 1e-8 && main > -1e-8 && fnc !== 'cos' ? 0 : closeTemplate(main);
 }
 
 function sinFake(val) { return fakeTemplate(val, "sin") }
@@ -526,6 +863,20 @@ function getKeyByValue(obj, val) {
     return Object.keys(obj).find(k => obj[k] === val);
 }
 
+function rmvEvtList(pnode, ...elems) { // remove event listeners by cloning and replacing
+    for(const e of elems) {
+        const newNode = e.cloneNode(true);
+        console.log(pnode, newNode, e, 'pne');
+        pnode.replaceChild(newNode, e);
+    }
+}
+
+function spliceString(str, add, ix) {
+    const split = [...str];
+    split.splice(ix, 0, ...add);
+    return split.join('');
+}
+
 
 
 
@@ -535,27 +886,26 @@ document.body.addEventListener("contextmenu", ev => {
 del.addEventListener("click", DEL);
 function proxySet(t) {
     extra.innerHTML = Object.values(t).reduce((a, c) => a + c + " ", "");
-    document.querySelectorAll(".ansHoverValue").forEach(qsaHover);
+    document.querySelectorAll(".hoverValue").forEach(e => {
+        const val = e.querySelector("sub").textContent;
+        console.log(val, 'val');
+        qsaHover(e, val.length === 1 ? new RegExp(`V${val} --&gt; (\\d+|Ans #\\d+\\/\\d+ --&gt; \\d+(\\.\\d+)?) \\| `) : /Ans #\d+\/\d+ --&gt; \d+(\.\d+)?\s\|\s/);
+    });
 } function proxyDelete(t, p) {
     if(p in t) delete t[p];
     proxySet(t);
 }
-const proxEOBJ = new Proxy(extraObj, {
-    deleteProperty: proxyDelete,
-    set: (t, p, v) => {
-        t[p] = v;
-        proxySet(t);
-    }
-});
 
-function ansInput(ansinput, ev, reset, dec = false) {
+function ansInput(ansinput, ev, reset = null, dec = false) {
     const brackPos = [ansinput.value.search(/\(/), ansinput.value.search(/\)/)];
     const brackBool = ansinput.value.includes("(");
     if([...allowedPlusChars, dec ? '.' : ''].includes(ev.key)) {
-        if(digitCount(ansinput.value) === 5 && /\d/.test(ev.key)) ev.preventDefault();
-        if(ansinput.value !== 10) {
-            reset.style.visibility = "visible";
-        } else reset.style.visibility = "hidden";
+        if(digitCount(ansinput.value) === 5 && reset && /\d/.test(ev.key) || 
+            ['.', 'Ans'].some(e => ansinput.value.includes(e)) && ev.key === '.') ev.preventDefault();
+        if(reset)
+            if(ansinput.value !== 10) { // specifically for log, needs to be general
+                reset.style.visibility = "visible";
+            } else reset.style.visibility = "hidden";
         if(ev.key.toLowerCase() === "a") {
             ev.preventDefault();
             if(!brackBool)  {
@@ -673,14 +1023,14 @@ function excRnd() {
     exc_rnd.classList.toggle("holding");
     if(exact) {
         exc_rnd.textContent = "ROUND";
-        if(bar.value === ans && decCount(ans) > fixed) {
-            bar.value = Number(bar.value).toFixed(fixed);
-        }
+        // if(bar.value === ans && decCount(ans) > fixed) {
+        //     bar.value = RNP(NP(bar.value).toFixed(fixed));
+        // }
         delete proxEOBJ.exc_rnd;
     } else {
-        if(bar.value === ans && decCount(ans) > fixed) {
-            bar.value = Number(bar.value).toFixed(fixed);
-        }
+        // if(bar.value === ans && decCount(ans) > fixed) {
+        //     bar.value = RNP(NP(bar.value).toFixed(fixed));
+        // }
         exc_rnd.textContent = "EXACT";
         proxEOBJ.exc_rnd = "FIX"+fixed;
     }
@@ -718,14 +1068,17 @@ document.getElementById('mr').addEventListener("click", mr);
 
 function sndAction() {
     timesActivated++;
+    document.querySelectorAll('.specs').forEach(s => {
+        s.classList.toggle('sndcolor');
+    });
     if(timesActivated & 1 === 1) {
         proxEOBJ.snd = "2ND";
         for(let i = 0; i < size; i++) {
             const si = smalls[i];
             const ni = nbs[i];
-            si.style.opacity = 1;
+            si.style.opacity = curTheme.specfncs.sndmode.up[1];
             si.style.fontWeight = 600;
-            si.style.color = "#b8e994";
+            si.style.color = curTheme.specfncs.sndmode.up[0];
             ni.style.opacity = 0.3;
             if(/S[a-zA-Z]/.test(si.textContent) || ni.textContent.includes('log')) 
                 ni.parentNode.classList.toggle('holding');
@@ -739,9 +1092,9 @@ function sndAction() {
         for(let i = 0; i < size; i++) {
             const si = smalls[i];
             const ni = nbs[i];
-            si.style.opacity = 0.6;
+            si.style.opacity = curTheme.specfncs.normal.up[1];
             si.style.fontWeight = 400;
-            si.style.color = "#000";
+            si.style.color = curTheme.specfncs.normal.up[0];
             ni.style.opacity = 1;
             if(/S[a-zA-Z]/.test(si.textContent) || ni.textContent.includes('log')) 
                 ni.parentNode.classList.toggle('holding');
@@ -755,20 +1108,42 @@ function sndAction() {
 
 document.getElementById("sndb").addEventListener("click", sndAction);
 
-function qsaHover(ahv) {
-    ahv.addEventListener("mouseover", () => {
-        const seqVal = Number(ahv.textContent.replace(ansRgx, "$1"));
-        const seqEval = localStorage.entryVals ? localStorage.entryVals : '';
-        const seqIx = seqEval.split(',')[seqVal - 1];
+function qsaHover(hv, rr) { // query selector answer hover (hover value, regex replacer)
+    const ES = LSF("entries").length; // entry size
 
-        const AHV = document.createElement("div");
-        AHV.id = "ahv";
-        AHV.textContent = ahv.textContent.replace(ansRgx, "Ans #$1 --> ") + seqIx;
-        AHV.classList.add('fadeIn');
-        document.body.append(AHV);
+    function simpleAnsfRepl(text) { // simple answer function replacement
+        if(ansRgx.test(text)) {
+            let seqIx = ansLoc(Number(text.replace(ansRgx, "$1")));
+            if(seqIx?.includes("Error")) seqIx = `<span class='red'>${seqIx}</span>`;
+            else if(!seqIx) seqIx = "<span class='red'>Out of Bounds</span>";
+            return text.replace(ansRgx, `Ans #$1/${ES} --> `) + seqIx;
+        } else return text;
+    }
+
+    console.log(hv.textContent, 'qsahover');
+    hv.addEventListener("mouseover", () => {
+        const hvtc = hv.textContent;
+        console.log(hvtc, HVQS(), 'hvtc + hvqs');
+        if(!HVQS()) {
+            const HV = document.createElement("div");
+            HV.id = "hv";
+            HV.classList.add('fadeIn');
+            document.body.append(HV);
+            // console.log(HVQS(), document.querySelector("#hv"), HV);
+        }
+
+        console.log(hvtc, HVQS(), 'hvtc + hvqs');
+        if(hvtc.length === 1) {
+            const varVal = vnl[hvtc];
+            HVQS().innerHTML = `V${hvtc} --> ${simpleAnsfRepl(varVal)}` + (HVQS().textContent ? " | " + HVQS().innerHTML : "");
+        } else HVQS().innerHTML = simpleAnsfRepl(hvtc) + (HVQS().textContent ? " | " + HVQS().innerHTML : "");
     });
-    ahv.addEventListener("mouseout", () => {
-        document.body.removeChild(document.querySelector("#ahv"));
+    hv.addEventListener("mouseout", () => {
+        console.log(HVQS().innerHTML, rr, 'hvqsmouseout');
+        if(HVQS().textContent.includes(" |"))
+            HVQS().innerHTML = HVQS().innerHTML.replace(rr, "");
+        else
+            document.body.removeChild(HVQS());
     });
 }
 
@@ -846,7 +1221,7 @@ function config() {
                         const seqEval = localStorage.entryVals.split(',');
                         const seqIx1 = Number(seqEval[seqVal1 - 1]);
                         const seqIx2 = Number(seqEval[seqVal2 - 1]);
-                        console.log(seqIx1, seqIx2);
+                        console.log(seqIx1, seqIx2, 'seqixs');
                         if((!isNaN(seqVal1) && seqVal1 >= 1 && seqVal1 < seqEval.length) && 
                         (!isNaN(seqVal2) && seqVal2 >= 1 && seqVal2 < seqEval.length) && 
                         [seqVal1, seqVal2].every(Number.isInteger)) {
@@ -862,12 +1237,12 @@ function config() {
                             seqErr = true;
                         }
                     }
-                    proxEOBJ.sequence = `S<sub>${mscst}</sub>V<sub>${fmscsv}</sub>${mscst == 'G' ? 'R' : 'D'}<sub>${fmscsdr}</sub>`;
+                    proxEOBJ.sequence = `S<sub>${mscst}</sub>V${fmscsv}${mscst == 'G' ? 'R' : 'D'}${fmscsdr}`;
                 } else {
                     delete proxEOBJ.sequence;
                     seqErr = false;
                 }
-                document.querySelectorAll(".ansHoverValue").forEach(qsaHover);
+                // document.querySelectorAll(".hoverValue").forEach(q => qsaHover(q, /Ans #\d+ --> \d+(\.\d+)?\s\|\s/));
                 SIP.onclick = reference;
                 bar.disabled = false;
                 bnsnsnr.forEach(el => {
@@ -910,44 +1285,44 @@ function logBaseHold() {
         }, 1000);
         saveD.addEventListener('click', () => {
             if(logInput.value.length > 0) {
-                const baseSub = document.querySelector("#baseSub");
+                
                 if(logInput.value !== "10" && logInput.value.includes("(")) {
                     proxEOBJ.log = "LOG"+`<sub>${logInput.value}</sub>`;
                 } else {
-                    baseSub.textContent = logInput.value;
+                    baseSubLog.textContent = logInput.value;
                     logErr = false;
                     delete proxEOBJ.log;
                 }
                 if(logInput.value.search(ansRgx) > -1) {
-                    proxEOBJ.log = "LOG"+`<span class="ansHoverValue"><sub>${logInput.value}</sub></span>`;
+                    proxEOBJ.log = "LOG"+`<span class="hoverValue"><sub>${logInput.value}</sub></span>`;
                     const baseVal = Number(logInput.value.replace(ansRgx, "$1"));
                     const evals = localStorage.entryVals.split(',');
                     const indexedVal = Number(evals[baseVal - 1]);
                     let baseSubPopup = document.getElementById('baseSubPopup');
                     if(Number.isInteger(baseVal) && baseVal >= 1 && baseVal <= evals.length) {
                         logBase = indexedVal;
-                        baseSub.textContent = "A";
-                        baseSub.style.color = "#0be881";
+                        baseSubLog.textContent = "A";
+                        baseSubLog.style.color = curTheme.logserbase.answer;
                         baseSubPopup.textContent = indexedVal;
                         logErr = false;
                     } else {
-                        baseSub.textContent = "E";
-                        baseSub.style.color = "#ea2027";
+                        baseSubLog.textContent = "E";
+                        baseSubLog.style.color = curTheme.logserbase.error;
                         baseSubPopup.innerHTML = "<em>x</em> in Ans(x) is not valid";
                         logErr = true;
                     }   
                 } else if (logInput.value !== "10") {
                     proxEOBJ.log = `LOG<sub>${logInput.value}</sub>`;
-                    baseSub.textContent = "X";
-                    baseSub.style.color = "#eccc68";
+                    baseSubLog.textContent = "X";
+                    baseSubLog.style.color = curTheme.logserbase.constant;
                     logBase = logInput.value;
                     logErr = false;
                 } else {
                     logBase = 10;
-                    baseSub.style.color = "#000000";
+                    baseSubLog.style.color = curTheme.textcol;
                     logErr = false;
                 }
-                document.querySelectorAll(".ansHoverValue").forEach(qsaHover);
+                // document.querySelectorAll(".hoverValue").forEach(q => qsaHover(q, /Ans #\d+ --> \d+(\.\d+)?\s\|\s/));
                 LogE.onclick = reference;
                 bar.disabled = false;
                 bnsdnrd.forEach(el => {
@@ -964,6 +1339,7 @@ LogE.addEventListener("mousedown", logBaseHold);
 LogE.addEventListener("mouseup", resetDownTimer);
 
 function setValue(v) {
+    console.log(v, 'setvalue');
     if(errMode) {
         document.body.removeChild(document.querySelector("#err"));
         errMode = false;
@@ -972,21 +1348,28 @@ function setValue(v) {
     } else {
         timesClickedAfterEvaluation++;
         let inputIx = bar.selectionStart;
-        function template(dset, attr) {
-            let i = Number(dset);
+        function template(dset, attr, pre = "", app = "") {
+            const vgaa = v.getAttribute(attr);
+            let i = Number(dset) + app.length + pre.length;
             let a = inputIx + i;
-            bar.value = brackForClick(inputIx - 1, bar.value, v.getAttribute(attr));
-            bar.setSelectionRange(a, a);
+            bar.value = brackForClick(inputIx - 1, bar.value, pre + vgaa + app);
+            const iftcae = timesClickedAfterEvaluation === 1 && ![...operArr, '!', '%'].includes(vgaa) ? i : a;
+            console.log(iftcae, i, a);
+            bar.setSelectionRange(iftcae, iftcae);
         }
         if(!sndactive || sndactive && !v.hasAttribute("data-specVal")) {
-            if(!(v.getAttribute("data-val") === '.' && !Number.isInteger(+ans))) {
+            const vgadv = v.getAttribute("data-val");
+            if(vgadv === '.' && (obef || bar.value === '')) {
+                template(v.dataset.valix, "data-val", "0");
+            }
+            if(!(vgadv === '.' && !Number.isInteger(+ans) && bar.value.slice(inputIx - 3, inputIx) === 'Ans')) {
                 if(timesClickedAfterEvaluation === 1) bar.value = '';
-                const io = [...operArr, '!', '%'].includes(v.getAttribute("data-val"));
+                const io = [...operArr, '!', '%'].includes(vgadv);
                 if(io && bar.value === '') {
                     bar.value = 'Ans';
                     inputIx = bar.selectionStart;
                 } if(!(obef && io)) {
-                    if(v.getAttribute("data-val") === 'log()' && logErr) {
+                    if(vgadv === 'log()' && logErr) {
                         ERR(`Invalid entry input for log() function`);
                         bar.value = "EntryError";
                     } else template(v.dataset.valix, "data-val");
@@ -1008,6 +1391,9 @@ function setValue(v) {
             } else template(svi, "data-specval");
         }
     }
+
+    decFS();
+    ansFuncHover();
 }
 
 document.querySelectorAll(".val")
@@ -1016,6 +1402,7 @@ document.querySelectorAll(".val")
 document.getElementById('cac').addEventListener("click", () => {
     bar.value = "";
     timesClickedAfterEvaluation = 0;
+    ansFuncHover();
 });
 
 function degRad() {
@@ -1038,8 +1425,8 @@ function degRad() {
 } 
 deg_rad.addEventListener("click", degRad);
 
-function evaluate(string) {
-    const rgxVal = "(⁻?\\d+(?:\\.\\d+)?|\\(.*\\)|(?<!ak|p)e|π)";
+function evaluate(string, eop = false) {
+    const rgxVal = "(⁻?\\d+(?:\\.\\d+)?|\\(.*\\)|(?<!ak|p)e|π|V.)";
 
     const { snd: peb, ...pea } = pieE;
     const { snd: rob, ...roa } = root;
@@ -1051,6 +1438,9 @@ function evaluate(string) {
     const { snd: esb, otherSnd: esc, ...esa } = expoSpec;
     const { snd: leb, ...lea } = logE;
     const { snd: lxb, ...lxa } = lnexp;
+
+    const ansf = ansFunc;
+    const ava = accvar;
 
     const sndOper = {
         "π" : pea, 
@@ -1082,7 +1472,10 @@ function evaluate(string) {
         "E" : leb,
 
         "ln" : lxa,
-        "exp" : lxb
+        "exp" : lxb,
+
+        "Ans(\\([1-9]\\d*\\))": ansf,
+        "V.": ava
     };
 
     let str = '';
@@ -1091,18 +1484,28 @@ function evaluate(string) {
         str += t;
     }
 
+    console.log(str, 'str');
+
     function serr(r, v) {
         str = str.replace(r, v);
     }
 
     if(ans !== null) {
-        const rgx = new RegExp(`${rgxVal}(?!\\*)Ans|(?<r>Ans(?!\\*)${rgxVal})`);
+        const rgx = new RegExp(`${rgxVal}(?!\\*)Ans(?!\\()|(?<r>Ans(?!\\*|\\()${rgxVal})`);
         let i = str.search(rgx);
+        console.log(str);
+        while(/AnsAns/.test(str)) str = str.replace(/AnsAns/, "Ans*Ans");
+        let whileIndex = 0;
         while(i >= 0) {
+            if(++whileIndex > 1000) {
+                ERR("Invalid Expression");
+                return "CalculationError";
+            }
+
             str = brackForClick(rgx.exec(str)?.groups?.r ? i + 2 : i, str, "*");
             i = str.search(rgx);
         }
-        serr(/Ans/g, ans);
+        serr(/Ans(?!\()/g, ans);
     }
 
     // implicit multiplication
@@ -1111,22 +1514,41 @@ function evaluate(string) {
         const rgx = new RegExp(k, 'g');
         const scopy = str;
         if(rgx.test(str) && val?.variable) {
-            // console.log(val, rgx);
+            console.log(val, rgx, 'valrgx');
             const type = val.variable;
-            const rstr = new RegExp(type === 'b' ? `${rgxVal}(?!\\*)${k}|${k}(?!\\*)${rgxVal}` : (
-                type === 'l' ? `${rgxVal}(?!\\*)${k}` : `${k}(?!\\*)${rgxVal}`
+            const rvleft = spliceString(rgxVal, '(?<=', 1) + ')'; // regex var for imp. mul. on the left
+            const rvright = spliceString(rgxVal, '(?=', 1) + ')'; // regex var for imp. mul. on the right
+
+            const rstr = new RegExp(type === 'b' ? `${rvleft}(?!\\*)${k}|${k}(?!\\*)${rvright}` : (
+                type === 'l' ? `${rvleft}(?!\\*)${k}` : `${k}(?!\\*)${rvright}`
             ));
             let ix = str.search(rstr);
+            console.log(str, rstr, ix, 'rgxix')
             let equ = str === scopy;
-            const o = type === 's' ? 1 : 0;
+            const isLeft = new RegExp(`${rvleft}(?!\\*)${k}`).test(str) ? -1 : 1;
+            console.log('isleft', isLeft);
+            const o = type === 's' ? 1 : (type === 'r' || type === 'l' || k === 'V.' ? isLeft : 0);
+            let whileIndex = 0;
             while(ix >= 0 && equ) {
+                if(++whileIndex > 50) {
+                    ERR("Invalid Expression");
+                    return "CalculationError";
+                }
+                console.log(str, ix, o, 'strix loop');
                 str = brackForClick(ix + o, str, "*");
                 equ = str !== scopy;
                 ix = str.search(rstr);
             }
         }
     }
-    
+
+
+    console.log(str, 'impmul');
+
+    serr(/V(.)/g, (_, p1) => rvv(p1)); // switch variables after implicit multiplication is present
+
+    console.log(str, 'impmul2');
+
     // replacements
     for(const k in sndOper) {
         const val = sndOper[k];
@@ -1142,16 +1564,21 @@ function evaluate(string) {
     const brackRGX = new RegExp(`\\)\\(|\\)${rgxVal}|${rgxVal}\\(`);
     const TbrackRGX = /\)\(/g;
     serr(TbrackRGX, ")*(");
+    let whileIndex = 0;
     while(brackRGX.test(str)) {
+        if(++whileIndex > 1000) {
+            ERR("Invalid Expression");
+            return "CalculationError";
+        }
         str = brackForClick(str.search(brackRGX), str, "*");
     }
 
-    console.log(str);
-    const evaluation = CEVAL(str);
+    const evaluation = CEVAL(str, eop);
     if(evaluation?.includes('Error')) return evaluation;
     else {
         const evalN = closeTemplate(evaluation);
-        return expoParse(!exact ? limit(evalN) : (+evalN).toFixed(fixed));
+        console.log((+evalN).toFixed(fixed), 'evaln');
+        return expoParse(!exact ? limit(evalN) : RNP(NP(evalN).toFixed(fixed)));
     }
 }
 
@@ -1162,8 +1589,13 @@ function evalSet() {
             localStorage.entries = bar.value + ",";
         } else localStorage.entries += bar.value + ",";
         
+        // where bar changes value
         bar.value = evaluate(bar.value);
-        ans = bar.value; 
+        ans = bar.value;
+        
+        decFS();
+        ansFuncHover();
+
         if(!localStorage.entryVals) {
             localStorage.entryVals = ans.toString()+",";
         } else localStorage.entryVals += ans.toString()+",";
@@ -1213,26 +1645,32 @@ copy.addEventListener("click", () => {
     }, 1000);
 });
 
-// paste.addEventListener("click", () => {
-//     document.execCommand("paste");
-// });
-
-// document.addEventListener("paste", e => {
-//     e.preventDefault();
-//     // const paste = e.clipboardData.getData("text");
-//     // console.log(+evaluate(paste, true), 'evaluationsdfjl');
-//     // if(String(CEVAL(paste, true)).includes('Error') && !isNaN(+evaluate(paste, true))) {
-//     //     ERR("Invalid Expression Pasted");
-//     //     bar.value = "PasteError";
-//     // } else 
-//     bar.value = brackForClick(bar.setSelectionStart, bar.value, paste);
-//     pasteResult.classList.add("fadeIn");
-//     setTimeout(() => {
-//         pasteResult.classList.add("fadeOut");
-//         pasteResult.classList.remove("fadeIn");
-//     }, 1000);
-//     // }
-// });
+paste.addEventListener("click", async () => {
+    try {
+        const pasted = await navigator.clipboard.readText();
+        console.log(+evaluate(pasted, true), 'evaluationsdfjl');
+        const exprPart = [...bar.value];
+        console.log(exprPart);
+        exprPart.splice(bar.selectionStart + 1, 0, pasted.replace(/\*/g, '×').replace(/\//g, '÷'));
+        const accEP = exprPart.join('');
+        console.log(accEP, 'exprpart', CEVAL(accEP, true));
+        if(String(CEVAL(accEP, true)).includes('Error') && isNaN(+evaluate(accEP, true))) {
+            ERR("Invalid Expression Pasted");
+            bar.value = "PasteError";
+        } else {
+            bar.value = accEP;
+            timesClickedAfterEvaluation++;
+            pasteResult.classList.add("fadeIn");
+            setTimeout(() => {
+                pasteResult.classList.add("fadeOut");
+                pasteResult.classList.remove("fadeIn");
+            }, 1000);
+        }
+    } catch (error) {
+        ERR("Could not read clipboard");
+        bar.value = "PasteError";
+    }
+});
 
 function DEL() {
     if(timesClickedAfterEvaluation === 0 || bar.value === '') bar.value = '';
@@ -1245,6 +1683,7 @@ function DEL() {
             let isBlock = false;
             let rangeValue = barPos === 0 || barPos == bar.value.length - 1 ? barPos : barPos - 1;
             for(const e of fullBlockArr) {
+                console.log(e, 'fba');
                 const ee = e + ")";
                 const l = e.length;
                 const ll = ee.length;
@@ -1277,6 +1716,9 @@ function DEL() {
             bar.setSelectionRange(rangeValue, rangeValue);
         }
     }
+
+    decFS();
+    ansFuncHover();
 }
 
 function ARROW(binaryDirection) {
@@ -1302,6 +1744,43 @@ function ARROW(binaryDirection) {
     }
 }
 
+function ansFuncHover() {
+    const ES = LSF("entries").length; // entry size
+    const ARI = [...bar.value.matchAll(ansRgx.source, 'gi')].map(m => m[0].match(ansRgx)[1]); // answer regex indices
+    if(!!ARI.length) {
+        if(!HVQS()) {
+            const hv = document.createElement("div");
+            hv.id = "hv";
+            hv.classList.add('fadeIn');
+            document.body.appendChild(hv);
+        }
+        const textToAdd = Array.from(new Set(ARI.map(a => {
+            let res = ansLoc(a);
+            if(res?.includes("Error")) res = `<span class='red'>${res}</span>`;
+            else if(!res) res = "<span class='red'>Out of Bounds</span>";
+            return `Ans #${a}/${ES} ==&gt; ${res}`
+        }))).join(', ');
+        console.log(ARI.map(a => {
+            let res = ansLoc(a);
+            if(res?.includes("Error")) res = `<span class='red'>${res}</span>`;
+            else if(!res) res = "<span class='red'>Out of Bounds</span>";
+            return `Ans #${a}/${ES} ==&gt; ${res}`
+        }), textToAdd, 'ari + texttoadd');
+
+        if(/\|/.test(HVQS().textContent))
+            HVQS().innerHTML = HVQS().innerHTML.replace(/(?<=\|\s)(.*)/, textToAdd);
+        else
+            HVQS().innerHTML = textToAdd;
+    } else {
+        if(HVQS()) document.body.removeChild(HVQS());
+    }
+}
+
+bar.addEventListener("keyup", () => {
+    decFS();
+    ansFuncHover();
+});
+
 bar.addEventListener("keydown", ev => {
     if(errMode) {
         ev.preventDefault();
@@ -1319,7 +1798,9 @@ bar.addEventListener("keydown", ev => {
             if(!(ev.key === '.' && !Number.isInteger(+ans) && bar.value.slice(etss - 3, etss) === 'Ans')) {
                 const inputIx = ev.target.selectionStart;
                 bar.value = timesClickedAfterEvaluation === 0 ? s : brackForClick(inputIx - 1, bar.value, s);
-                bar.setSelectionRange(inputIx + i, inputIx + i);
+                console.log(inputIx, 'inputix', i);
+                const iftcae = timesClickedAfterEvaluation === 0 ? i : inputIx + i;
+                bar.setSelectionRange(iftcae, iftcae);
                 inputIndex += i;
                 timesClickedAfterEvaluation++;
             }
@@ -1344,7 +1825,23 @@ bar.addEventListener("keydown", ev => {
             evalSet();
         }
 
-        switch(ev.key) {
+        if(bar.value[ev.target.selectionStart - 1] === 'V') {
+            if(!Object.keys(vnl).includes(ev.key) && !ev.key?.[1]) {
+                ev.preventDefault();
+                ERR(`Variable, ${ev.key} does not exist`);
+                bar.value = "VariableError";
+            } 
+            // else {
+            //     console.log(vnl, ev.key);
+            //     if(/Error|Bounds/.test(vnl[ev.key])) {
+            //         ev.preventDefault();
+            //         ERR(`Invalid entry input for variable, ${ev.key}`);
+            //         bar.value = "EntryError";
+            //     }
+            // }
+        } 
+
+        else switch(ev.key) {
             case "A":
                 ev.preventDefault();
                 bar.value = "";
@@ -1368,6 +1865,7 @@ bar.addEventListener("keydown", ev => {
 
             case "s":
                 ev.preventDefault();
+                console.log(bar.selectionStart, timesClickedAfterEvaluation, 'bss tcae');
                 if(!sndactive) type("sin()", 4);
                 else type("arcsin()", 7);
                 break;
@@ -1538,7 +2036,9 @@ bar.addEventListener("keydown", ev => {
 
             case ".":
                 ev.preventDefault();
-                if(!operIsThere())
+                if(operIsThere() || bar.value === "")
+                    type("0.", 2);
+                else
                     superType(".");
                 break;
 
@@ -1560,6 +2060,16 @@ bar.addEventListener("keydown", ev => {
             case "x":
                 ev.preventDefault();
                 type("exp()", 4);
+                break;
+
+            case "v":
+                ev.preventDefault();
+                type("V", 1);
+                break;
+            
+            case "V":
+                ev.preventDefault();
+                type("V", 1);
                 break;
             
             case "ArrowLeft":
@@ -1591,11 +2101,20 @@ bar.addEventListener("keydown", ev => {
                 ev.preventDefault();
         }
     }
+
+    decFS();
 }); 
 
 function neg() {
     if(!isNaN(bar.value.replace('⁻', '-'))) {
         bar.value = bar.value[0] === '⁻' ? bar.value.slice(1) : '⁻' + bar.value;
+    } else {
+        console.log('sup', bar.value[bar.selectionStart - 1]);
+        if(bar.value[bar.selectionStart - 1] !== '⁻') {
+            const ix = bar.selectionStart + 1;
+            bar.value = brackForClick(bar.selectionStart - 1, bar.value, "⁻");
+            bar.setSelectionRange(ix, ix);
+        }
     }
 }
 document.getElementById("top").addEventListener("click", neg);
@@ -1632,3 +2151,176 @@ document.addEventListener("selectionchange", () => {
 
     obef = operArr.includes(prev);
 });
+
+document.getElementById("mem").addEventListener("click", () => {
+    dmem.classList.toggle('dnone');
+    dmem.classList.toggle('dbox');
+});
+
+let tog = true;
+function VRev(toggle) {
+    bar.disabled = toggle;
+    document.querySelectorAll('#dvar input').forEach(el => {
+        el.disabled = !toggle;
+    });
+}
+
+function proxyVarsFunc() {
+    proxEOBJ.vars = `V${Object.keys(vnl).sort().map(e => `<span class="hoverValue"><sub>${e}</sub></span>`).join('')}`
+}
+
+function setvarF() {
+    const vnv = varname.value;
+    const vvv = varval.value;
+
+    console.log(vnv, vnl, 'vnvvnl');
+    if(vnv in vnl) vnl[vnv] = vvv;
+    else {
+        vnl[vnv] = vvv;
+        const newvar = document.createElement("button");
+        newvar.classList.add('chvar', 'val');
+        newvar.dataset.val = 'V' + vnv;
+        newvar.textContent = vnv;
+        newvar.addEventListener("click", () => setValue(newvar));
+        flexbut.appendChild(newvar);
+    }
+    varval.value = '';
+    varname.value = '';
+    varb1.removeEventListener("click", setvarF);
+    varb1.id = '';
+    varb1.classList.add('nostyle');
+    varb1.classList.remove('stvc', 'h5but');
+
+    proxyVarsFunc();
+    outTemp();
+} function removevarF() {
+    const vnv = varname.value;
+    flexbut.removeChild(flexbut.querySelector(`*[data-val="V${vnv}"]`));
+
+    delete vnl[vnv];
+    if(!Object.keys(vnl).length) delete proxEOBJ.vars;
+    else proxyVarsFunc();
+
+    varval.value = '';
+    varname.value = '';
+    varb1.removeEventListener("click", setvarF);
+    varb1.id = '';
+    varb1.classList.add('nostyle');
+    varb1.classList.remove('stvc', 'h5but');
+
+    varb2.classList.add('nostyle');
+    varb2.removeEventListener("click", removevarF);
+    varb2.classList.remove('rmvc', 'h5but');
+    varb2.textContent = '';
+}
+
+
+function setTemp() { // add template
+    varb1.classList.remove('nostyle', 'rmvc');
+    varb1.classList.add('stvc', 'h5but');
+    varb1.textContent = 'Set';
+    varb2.textContent = '';
+    varb2.classList.remove('rmvc', 'h5but');
+    varb2.classList.add('nostyle');
+
+    varb1.addEventListener("click", setvarF);
+    varb2.removeEventListener("click", removevarF);
+} function rmTemp() { // remove template
+    varb1.classList.remove('nostyle', 'stvc');
+    varb1.classList.add('stvc', 'h5but');
+    varb1.textContent = 'Set';
+    varb2.textContent = 'Rmv';
+    varb2.classList.add('rmvc', 'h5but');
+    varb2.classList.remove('nostyle');
+
+    varb1.addEventListener("click", setvarF);
+    varb2.addEventListener("click", removevarF);
+} function outTemp() { // out/exit template
+    varb1.classList.remove('stvc', 'h5but');
+    varb1.classList.add('nostyle');
+    varb1.textContent = 'Set';
+
+    varb2.classList.remove('rmvc', 'h5but');
+    varb2.classList.add('nostyle');
+    varb2.textContent = '';
+
+    varb1.removeEventListener("click", setvarF);
+    varb2.removeEventListener("click", removevarF);
+}
+
+function KUVevent(nov) { // keyup variable event (name or value)
+    const varb = nov === 'v' ? varval : varname;
+    if(!varb.value && varb1.classList.contains('h5but')) outTemp();
+}
+
+varval.addEventListener("keyup", () => { KUVevent('v') });
+varname.addEventListener("keyup", e => { if(e.key !== 'Space') KUVevent('n') });
+
+varval.addEventListener("keydown", ev => {
+    ansInput(varval, ev, null, true);
+    if(varname.value && /\d|\.|a/i.test(ev.key) && ev.key.length === 1 || varval.value) setTemp();
+    else { if(varb1.classList.contains('h5but')) outTemp(); }
+    
+});
+
+varname.addEventListener("keydown", ev => {
+    if(ev.key !== 'Space') {
+        console.log(varval.value);
+        if(varval.value) setTemp();
+        else { if(varb1.classList.contains('h5but')) outTemp(); }
+
+        
+        if(Object.keys(vnl).includes(ev.key)) {
+            console.log('sup');
+            const vek = vnl[ev.key];
+            varval.value = vek;
+            varval.setSelectionRange(0, vek.length);
+
+            rmTemp();
+        } 
+
+        if(!ev.key[1]) {
+            varname.value = ev.key;
+            varval.focus();
+            ev.preventDefault();
+        }
+    } else ev.preventDefault();
+});
+
+document.getElementById("var").addEventListener("click", () => {
+    dvar.classList.toggle('dnone');
+    dvar.classList.toggle('dbox');
+    VRev(tog);
+    tog = !tog;
+});
+
+themeLink.addEventListener("click", () => {
+    themeUI.classList.toggle("dnone");
+});
+
+const [dft, lgt, drt] = document.querySelectorAll('#themes .theme');
+dft.addEventListener('click',  () => {
+    TBT(localStorage.scalcTheme);
+    localStorage.scalcTheme = 'default';
+    TBT(localStorage.scalcTheme);
+    curTheme = themes.default;
+    loadTheme(themes.default);
+}); lgt.addEventListener('click',  () => {
+    TBT(localStorage.scalcTheme);
+    localStorage.scalcTheme = 'light';
+    TBT(localStorage.scalcTheme);
+    curTheme = themes.light;
+    loadTheme(themes.light);
+}); drt.addEventListener('click',  () => {
+    TBT(localStorage.scalcTheme);
+    localStorage.scalcTheme = 'dark';
+    TBT(localStorage.scalcTheme);
+    curTheme = themes.dark;
+    loadTheme(themes.dark);
+});
+
+// console.log(localStorage.proxyStorage);
+
+// for(const [k, v] of Object.entries(JSON.parse(localStorage.proxyStorage ?? "{}"))) {
+//     proxEOBJ[k] = v;
+// }
