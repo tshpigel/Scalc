@@ -126,3 +126,16 @@ input[type="datetime-local"] {
     width: 100%;
     font-size: 13px;
 }
+
+#mainbtns {
+    position: fixed;
+    flex-direction: row;
+    flex-wrap: wrap;
+    display: flex;
+    bottom: 0;
+}
+
+.mainrow {
+    position: relative;
+    width: 100%;
+}
