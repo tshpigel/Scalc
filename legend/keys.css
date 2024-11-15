@@ -174,13 +174,21 @@ button:not(#next) {
 #cc, #pc {
     width: 65px;
     height: 45px;
-    background: #78e08f;
-    box-shadow: 0 5px #b8e994;
+    
     border-radius: 15px;
     transition: 0.2s;
-} #cc:hover, #pc:hover {
+} #cc {
+    background: #78e08f;
+    box-shadow: 0 5px #b8e994;
+} #cc:hover {
     background: #2ed573;
     box-shadow: 0 5px #7bed9f;
+} #pc {
+    background: #ca53b0;
+    box-shadow: 0 5px #d770c1;
+} #pc:hover {
+    background: #af4898;
+    box-shadow: 0 5px #be66ab;
 }
 
 #copy, #paste { 
@@ -215,4 +223,8 @@ button:not(#next) {
     -webkit-transform: rotate(135deg);
 } .arrow:active {
     transform: translateY(1px);
+}
+
+.thing {
+    color: #369627;
 }
