@@ -33,7 +33,7 @@
         <tr>
             <td><button class="pom">±</button></td>
             <td>_ (underscore)</td>
-            <td>Pressing the button will negate the current value in the bar, if the bar contains an expression the button does nothing. Typing an underscore will insert a negative sign.</td>
+            <td>Pressing the button will negate the current value in the bar, if the bar contains an expression the button will insert a negative sign. Typing an underscore will also insert a negative sign.</td>
         </tr>
         <tr>
             <td><button class="opers">=</button></td>
@@ -43,7 +43,12 @@
         <tr>
             <td><button class="mem">MEM</button></td>
             <td>None</td>
-            <td>Basic memory functions (C for clear/back to 0, + for add, - for subtract, R for recall/print). For adding and subtracting, value must be in bar before pressing buttons.</td>
+            <td>Toggles a popup for basic memory functions (MC for clear/back to 0, M+ for add, M- for subtract, MR for recall/print). For adding and subtracting, value must be in bar before pressing buttons.</td>
+        </tr>
+        <tr>
+            <td><button class="mem">VAR</button></td>
+            <td>V v</td>
+            <td>Variable manager button. Toggles a popup for setting, removing, and using variables (first input with 'x' is for the variable name). Typing 'a' in the value input shows 'Ans()' where Ans(n) will give the variable the value of the nth answer entry. Once created, the variable will show up in the top left in subscript under V. Hovering over a variable will show the according value.</td>
         </tr>
         <tr>
             <td><button class="brac">()</button></td>
@@ -174,13 +179,13 @@
         <tr>
             <td><div id="cc"><img src="../copy.png" alt="copy" id="copy" width="30" height="30"></div></td>
             <td>None</td>
-            <td>Copies the current bar to clipboard. Paste will be implemented in the next update.</td>
+            <td>Copies the current bar to clipboard.</td>
         </tr>
-        <!-- <tr>
+        <tr>
             <td><div id="pc"><img src="../paste.png" alt="paste" id="paste" width="30" height="30"></div></td>
             <td>None</td>
-            <td>Pastes current value in clipboard to bar, only if the expression is valid; otherwise an error will be thrown.</td>
-        </tr> -->
+            <td>Pastes only valid expressions from clipboard. If invalid, a PasteError will be thrown.</td>
+        </tr>
         <tr>
             <td>
                 <button class="arrow al"><i id="leftarrow"></i></button><br><br>
@@ -193,7 +198,7 @@
     <button id="next">Next</button>
     <span id="iconAttr">
         <a href="https://www.flaticon.com/free-icons/layer" target="_blank" title="layer icons">Layer icons created by Freepik - Flaticon</a><br>
-        <!-- <a href="https://www.flaticon.com/free-icons/paste" title="paste icons">Paste icons created by Pixel perfect - Flaticon</a> -->
+        <a href="https://www.flaticon.com/free-icons/paste" title="paste icons">Paste icons created by pictranoosa - Flaticon</a>
     </span>
     <script src="./keys.js"></script>
 </body>
