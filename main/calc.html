@@ -26,15 +26,45 @@
     <title>Calculator</title>
 </head>
 <body>
-    <a id="legendLink" target="_blank" href="../legend/keys.html">legend</a>
+    <span id="toplinks">
+        <a class="toplink" id="legendLink" target="_blank" href="../legend/keys.html">legend</a>
+        <a class="toplink" id="themeLink">theme</a>
+    </span>
+    <div id="themes" class="dnone">
+        <div id="defaultT" class="theme">
+            <div>
+                <button>3</button>
+                <button>+</button>
+            </div>
+            <span>default</span>
+        </div>
+        <div id="lightT" class="theme">
+            <div>
+                <button>3</button>
+                <button>+</button>
+            </div>
+            <span>light</span>
+        </div>
+        <div id="darkT" class="theme">
+            <div>
+                <button>3</button>
+                <button>+</button>
+            </div>
+            <span>dark</span>
+        </div>
+        <!-- <div id="newtheme">
+            <span id="newplus">+</span>
+            <span>custom</span>
+        </div> -->
+    </div>
     <span id="copyCont">
         <img src="../copy.png" alt="copy" id="copy" width="30" height="30"><br>
         <span>Bar was successfully copied</span>
     </span> 
-    <!-- <span id="pasteCont">
+    <span id="pasteCont">
         <img src="../paste.png" alt="paste" id="paste" width="30" height="30"><br>
         <span>Expression was pasted successfully</span>
-    </span> -->
+    </span>
     <div id="extra"></div>
     <button class="arrow al"><i id="leftarrow"></i></button>
     <button class="arrow ar"><i id="rightarrow"></i></button>
@@ -90,23 +120,40 @@
             <button id="sndb" class="snd"><span id="sndsub">2nd</span></button>
         </div>
         <div id="right">
-            <button class="val" data-valIx="1" data-specValIx="1" data-val="π" data-specVal="e" id="pi"><span class="small">e</span><br><span class="nb">π</span></button>
-            <button class="val" data-valIx="2" data-specValIx="3" data-val="√()" data-specVal="n√()" id="root"><span class="small"><sup>n</sup>√x</span><br><span class="nb">√x</span></button>
-            <button class="val" data-valIx="1" data-specValIx="1" data-val="!" id="perc" data-specVal="%" id="fac"><span class="small">x% <sub></sub></span><br><span class="nb">x! <sub></sub></span></button>
-            <button class="val" data-valIx="1" data-specValIx="2" data-val="C" data-specVal="P" id="pAc"><span class="small"><sub>n</sub>P<sub>r</sub></span><br><span class="nb"><sub>n</sub>C<sub>r</sub></span></button>
-            <button class="val" data-valIx="4" data-specValIx="7" data-val="sin()" data-specVal="arcsin()" id="sin"><span class="small">sin<sup>-1</sup>(x)</span><br><span class="nb">sin(x)</span></button>
-            <button class="val" data-valIx="4" data-specValIx="7" data-val="cos()" data-specVal="arccos()" id="cos"><span class="small">cos<sup>-1</sup>(x)</span><br><span class="nb">cos(x)</span></button>
-            <button class="val" data-valIx="4" data-specValIx="7" data-val="tan()" data-specVal="arctan()" id="tan"><span class="small">tan<sup>-1</sup>(x) <sub></sub></span><br><span class="nb">tan(x) <sub></sub></span></button>
-            <button class="val" data-valIx="1" data-specValIx="1" data-val="^" data-specVal="S" id="SIPower"><span class="small">S<sub id="baseSubSer">x</sub></span><br><span class="nb">n<sup>x</sup></span></button>
+            <button class="specs val" data-valIx="1" data-specValIx="1" data-val="π" data-specVal="e" id="pi"><span class="small">e</span><br><span class="nb">π</span></button>
+            <button class="specs val" data-valIx="2" data-specValIx="3" data-val="√()" data-specVal="n√()" id="root"><span class="small"><sup>n</sup>√x</span><br><span class="nb">√x</span></button>
+            <button class="specs val" data-valIx="1" data-specValIx="1" data-val="!" id="perc" data-specVal="%" id="fac"><span class="small">x% <sub></sub></span><br><span class="nb">x! <sub></sub></span></button>
+            <button class="specs val" data-valIx="1" data-specValIx="2" data-val="C" data-specVal="P" id="pAc"><span class="small"><sub>n</sub>P<sub>r</sub></span><br><span class="nb"><sub>n</sub>C<sub>r</sub></span></button>
+            <button class="specs val" data-valIx="4" data-specValIx="7" data-val="sin()" data-specVal="arcsin()" id="sin"><span class="small">sin<sup>-1</sup>(x)</span><br><span class="nb">sin(x)</span></button>
+            <button class="specs val" data-valIx="4" data-specValIx="7" data-val="cos()" data-specVal="arccos()" id="cos"><span class="small">cos<sup>-1</sup>(x)</span><br><span class="nb">cos(x)</span></button>
+            <button class="specs val" data-valIx="4" data-specValIx="7" data-val="tan()" data-specVal="arctan()" id="tan"><span class="small">tan<sup>-1</sup>(x) <sub></sub></span><br><span class="nb">tan(x) <sub></sub></span></button>
+            <button class="specs val" data-valIx="1" data-specValIx="1" data-val="^" data-specVal="S" id="SIPower"><span class="small">S<sub id="baseSubSer">x</sub></span><br><span class="nb">n<sup>x</sup></span></button>
         </div>
-        <button class="val holding" data-valIx="4" data-specValIx="1" data-val="log()" data-specVal="E" id="logE"><span class="small">10<sup>x</sup></span><br><span class="nb">log<sub id="baseSub">10</sub>(x)</span></button>
-        <button class="val" data-valIx="3" data-specValIx="4" data-val="ln()" data-specVal="exp()" id="lnexp"><span class="small">e<sup>x</sup></span><br><span class="nb">ln(x)</span></button>
+        <button class="specs val holding" data-valIx="4" data-specValIx="1" data-val="log()" data-specVal="E" id="logE"><span class="small">10<sup>x</sup></span><br><span class="nb">log<sub id="baseSub">10</sub>(x)</span></button>
+        <button class="specs val" data-valIx="3" data-specValIx="4" data-val="ln()" data-specVal="exp()" id="lnexp"><span class="small">e<sup>x</sup></span><br><span class="nb">ln(x)</span></button>
         <div id="memcb">
             <div id="memorypb">
-                <button id="mc" class="memory">MC</button>
-                <button id="mp" class="memory">M+</button>
-                <button id="mm" class="memory">M-</button>
-                <button id="mr" class="memory">MR</button>
+                <span id="mems">
+                    <button id="mem">MEM</button>
+                    <div class="dnone" id="dmem">
+                        <button id="mc" class="memory">MC</button>
+                        <button id="mp" class="memory">M+</button>
+                        <button id="mm" class="memory">M-</button>
+                        <button id="mr" class="memory">MR</button>
+                    </div>
+                </span>
+                <span id="vars">
+                    <button id="var">VAR</button>
+                    <div class="dnone" id="dvar">
+                        <h5><button class="nostyle">Set</button><span class="gap">&ensp;</span><button class="nostyle"></button></h5><br>
+                        <div>
+                            <input type="text" id="varname" maxlength="1" placeholder="x">
+                            <input type="text" id="varval" placeholder="Value">
+                        </div>
+                        <h5>Choose</h5>
+                        <div id="flexbut"></div>
+                    </div>
+                </span>
                 <button data-valIx="1" data-val="()" class="val" id="brack">( )</button>
                 <button id="del">DEL</button>
                 <button id="cac">AC</button>
@@ -115,8 +162,9 @@
     </div>
     <div id="serConfigCont">
         <h2>Type</h2>
-        <button class="ser" id="ari">Arithmetic</button>
-        <button class="ser" id="geo">Geometric</button>
+        <button class="ser" id="ari">Arith</button>
+        <button class="ser" id="geo">Geom</button>
+        <!-- <button class="ser" id="cus">Custom</button> -->
 
         <h2>Starting Value</h2>
         <input id="stval" type="text" value="1">
