@@ -2,10 +2,7 @@
 
 const max = 3e5;
 const lss = new Blob(Object.values(localStorage)).size;
-
-// console.log(localStorage.proxyStorage);
 const extraObj = {};
-
 const allowedPlusChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'A', 'Backspace', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 const lsEA = (localStorage.entries) ? localStorage.entries.split(',') : [];
 const LSF = prop => (localStorage[prop] || '').split(',').filter(e => e.length > 0);
@@ -24,7 +21,6 @@ const vnl = {}; // variable name list
 const hvqo = {}; // hover value query object
 const themes = {
     default: {
-        // icon: ["c56cf0#eae5d8", "f7d794#eccc68"],
         bg: "linear-gradient(90deg, hsla(238, 100%, 71%, 1) 0%, hsla(295, 100%, 84%, 1) 100%)",
         body: "#c8d6e5",
         bodyshadow: "#222f3e",
@@ -62,7 +58,6 @@ const themes = {
         }
     },
     light: {
-        // icon: ["f7f1e3#eae5d8", "f5f6fa#eeeff4"],
         bg: "#d8d5d5",
         body: "#e9eef3",
         bodyshadow: "#404040",
@@ -100,7 +95,6 @@ const themes = {
         }
     },
     dark: {
-        // icon: ["2f3542#57606f", "3d3d3d#4b4b4b"],
         bg: "#272530",
         body: "#131216",
         bodyshadow: "#464548",
@@ -230,14 +224,10 @@ const themeUI = document.querySelector("#themes");
 const proxEOBJ = new Proxy(extraObj, {
     deleteProperty: (t, p) => {
         proxyDelete(t, p);
-        // localStorage.proxyStorage = JSON.stringify(proxEOBJ);
-        // console.log('del proxy', localStorage.proxyStorage);
     },
     set: (t, p, v) => {
         t[p] = v;
         proxySet(t);
-        // localStorage.proxyStorage = JSON.stringify(proxEOBJ);
-        // console.log('set proxy', localStorage.proxyStorage);
     }
 });
 
@@ -456,7 +446,6 @@ function loadTheme(thm) {
     }\n`;
 
     bcbsh('.arrow', thm.arrows);
-    // document.querySelectorAll(".arrow i").forEach(a => a.style.border = `solid ${thm.arrows[1]}`);
     extss += `.arrow>* {
         border: solid ${thm.arrows[1]};
     }\n`;
@@ -927,7 +916,7 @@ function ansInput(ansinput, ev, reset = null, dec = false) {
         }
         if(ev.key === "Backspace" && ansinput.value === "Ans()") {
             ansinput.value = "";
-        } //else if (ev.key === "Backspace" && ansinput.value === "Ans()")
+        } 
     } else ev.preventDefault();
 }
 
@@ -1023,14 +1012,8 @@ function excRnd() {
     exc_rnd.classList.toggle("holding");
     if(exact) {
         exc_rnd.textContent = "ROUND";
-        // if(bar.value === ans && decCount(ans) > fixed) {
-        //     bar.value = RNP(NP(bar.value).toFixed(fixed));
-        // }
         delete proxEOBJ.exc_rnd;
     } else {
-        // if(bar.value === ans && decCount(ans) > fixed) {
-        //     bar.value = RNP(NP(bar.value).toFixed(fixed));
-        // }
         exc_rnd.textContent = "EXACT";
         proxEOBJ.exc_rnd = "FIX"+fixed;
     }
@@ -1129,7 +1112,6 @@ function qsaHover(hv, rr) { // query selector answer hover (hover value, regex r
             HV.id = "hv";
             HV.classList.add('fadeIn');
             document.body.append(HV);
-            // console.log(HVQS(), document.querySelector("#hv"), HV);
         }
 
         console.log(hvtc, HVQS(), 'hvtc + hvqs');
@@ -1242,7 +1224,6 @@ function config() {
                     delete proxEOBJ.sequence;
                     seqErr = false;
                 }
-                // document.querySelectorAll(".hoverValue").forEach(q => qsaHover(q, /Ans #\d+ --> \d+(\.\d+)?\s\|\s/));
                 SIP.onclick = reference;
                 bar.disabled = false;
                 bnsnsnr.forEach(el => {
@@ -1322,7 +1303,6 @@ function logBaseHold() {
                     baseSubLog.style.color = curTheme.textcol;
                     logErr = false;
                 }
-                // document.querySelectorAll(".hoverValue").forEach(q => qsaHover(q, /Ans #\d+ --> \d+(\.\d+)?\s\|\s/));
                 LogE.onclick = reference;
                 bar.disabled = false;
                 bnsdnrd.forEach(el => {
@@ -1831,14 +1811,6 @@ bar.addEventListener("keydown", ev => {
                 ERR(`Variable, ${ev.key} does not exist`);
                 bar.value = "VariableError";
             } 
-            // else {
-            //     console.log(vnl, ev.key);
-            //     if(/Error|Bounds/.test(vnl[ev.key])) {
-            //         ev.preventDefault();
-            //         ERR(`Invalid entry input for variable, ${ev.key}`);
-            //         bar.value = "EntryError";
-            //     }
-            // }
         } 
 
         else switch(ev.key) {
@@ -2318,9 +2290,3 @@ dft.addEventListener('click',  () => {
     curTheme = themes.dark;
     loadTheme(themes.dark);
 });
-
-// console.log(localStorage.proxyStorage);
-
-// for(const [k, v] of Object.entries(JSON.parse(localStorage.proxyStorage ?? "{}"))) {
-//     proxEOBJ[k] = v;
-// }
