@@ -2,7 +2,9 @@
 
 const max = 3e5;
 const lss = new Blob(Object.values(localStorage)).size;
+
 const extraObj = {};
+
 const allowedPlusChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'A', 'Backspace', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 const lsEA = (localStorage.entries) ? localStorage.entries.split(',') : [];
 const LSF = prop => (localStorage[prop] || '').split(',').filter(e => e.length > 0);
@@ -15,12 +17,14 @@ for(let L of LS) L = L.slice(0, init);
 localStorage.entryVals = lsEV.join(',') + ',';
 localStorage.entries = lsE.join(',') + ',';
 localStorage.date = lsD.join(',') + ',';
+if(!localStorage.varVals) localStorage.varVals = "{}";
 const ansRgx = /Ans\((\d+)\)/i;
 const digKeyCodeArr = Array.from({ length: 9 }, (_, i) => i + 48);
-const vnl = {}; // variable name list
+const vnl = JSON.parse(localStorage.varVals); // variable name list
 const hvqo = {}; // hover value query object
 const themes = {
     default: {
+        // icon: ["c56cf0#eae5d8", "f7d794#eccc68"],
         bg: "linear-gradient(90deg, hsla(238, 100%, 71%, 1) 0%, hsla(295, 100%, 84%, 1) 100%)",
         body: "#c8d6e5",
         bodyshadow: "#222f3e",
@@ -58,6 +62,7 @@ const themes = {
         }
     },
     light: {
+        // icon: ["f7f1e3#eae5d8", "f5f6fa#eeeff4"],
         bg: "#d8d5d5",
         body: "#e9eef3",
         bodyshadow: "#404040",
@@ -95,6 +100,7 @@ const themes = {
         }
     },
     dark: {
+        // icon: ["2f3542#57606f", "3d3d3d#4b4b4b"],
         bg: "#272530",
         body: "#131216",
         bodyshadow: "#464548",
@@ -140,7 +146,7 @@ const defaultSeriesConfigSettings = {
     start : "1",
     type : 'arithmetic',
     difference_ratio : "1"
-};
+}; const jsonDef = JSON.stringify(defaultSeriesConfigSettings);
 let mutableSeriesConfigSettings = {
     start : "1",
     type : 'arithmetic',
@@ -173,9 +179,7 @@ const extra = document.querySelector('#extra');
 const ansE = document.querySelector("#ans");
 const del = document.querySelector("#del");
 const copy = document.querySelector("#copy");
-const copyResult = document.querySelector("#copyCont span");
 const paste = document.querySelector("#paste");
-const pasteResult = document.querySelector("#pasteCont span");
 const stval = document.querySelector('#stval');
 const serDiff = document.querySelector('#diff');
 const SIP = document.querySelector('#SIPower');
@@ -187,6 +191,7 @@ const resetC = document.querySelector("#resetC");
 const entries = document.querySelector("#entries");
 const eClear = document.querySelector("#eClear");
 const eLeft = document.querySelector('#entryLeft');
+const eCount = document.querySelector('#entryCount');
 const exit = document.querySelector('#exit');
 const reset = document.querySelector("#reset");
 const resetB = document.querySelector("#resetB");
@@ -220,16 +225,64 @@ const [varb1, varb2] = document.querySelectorAll("#dvar > h5:nth-child(1) > butt
 const flexbut = document.querySelector("#flexbut");
 const themeLink = document.querySelector("#themeLink");
 const themeUI = document.querySelector("#themes");
+const newplus = document.querySelector("#newplus");
+
+// live state of the calculator (to save if extension is closed)
+if(!localStorage.saveState) localStorage.saveState = JSON.stringify({bar:'',proxEOBJ:{},caret:false,tcae:0,cpos:0});
+const saveState = JSON.parse(localStorage.saveState);
+console.log(saveState, 'save state');
 
 const proxEOBJ = new Proxy(extraObj, {
     deleteProperty: (t, p) => {
         proxyDelete(t, p);
+        delete saveState.proxEOBJ[p];
+        USS();
+        // console.log('del proxy', localStorage.proxyStorage);
     },
     set: (t, p, v) => {
         t[p] = v;
         proxySet(t);
+        console.log(t, p, v);
+        saveUpdate(p, v, true);
+        // console.log('set proxy', localStorage.proxyStorage);
     }
 });
+
+const proxFUNCS = {
+    exc_rnd: (s) => {
+        fix.value = +s.slice(-1);
+        fixed = +s.slice(-1);
+        excRnd();
+    }, snd: (s) => {
+        sndAction();
+    },
+    rad: (s) => {
+        deg = true;
+        degRad();
+    },
+    log: (s) => {
+        const ivalue = /(?<=sub\>)[^<]+(?=\<\/sub)/.exec(s)[0];
+        logInput.value = ivalue;
+        if(ivalue.includes('Ans')) ansLogTemplate(ivalue);
+        else nonAnsLogTemplate(ivalue);
+    },
+    vars: (s) => {
+        for(const [n, v] of Object.entries(vnl))
+            setvarTemplate(n, v);
+    },
+    sequence: (s) => {
+        const [S, V, R] = [...s.matchAll(/(?<=sub\>)[^<]+(?=\<\/sub)/g)].map(e => e[0]);
+        if(S === 'G') geomTemplate();
+        else arithTemplate();
+        reset.style.visibility = "hidden";
+        
+        mainConfigTemplate(V, R);
+        stval.value = V;
+        serDiff.value = R;
+
+        console.log(S, V, R, mutableSeriesConfigSettings, 'seq matching');
+    }
+}
 
 const add = {
     conversion : "+",
@@ -283,7 +336,7 @@ const pieE = {
 }; const facPerc = {
     conversion : "fac($1)",
     fnc : true,
-    variable : 's',
+    variable : 'r',
     snd : {
         conversion : "/100",
         variable : 'r'
@@ -334,7 +387,8 @@ const pieE = {
     block : "log(",
     fnc : true,
     snd : {
-        conversion : "ET"
+        conversion : "esn($1)",
+        variable: "l"
     }
 }; const expoSpec = {
     conversion : "pow($1,$2)",
@@ -376,6 +430,19 @@ loadTheme(curTheme);
 
 // helper functions
 
+function saveUpdate(k, v, p = false) {
+    if(p) saveState.proxEOBJ[k] = v;
+    else saveState[k] = v;
+
+    USS();
+}
+
+function barvalue(text) {
+    bar.value = text;
+    if(!errMode)
+        saveUpdate('bar', text);
+}
+
 function HVQS() {
     return document.querySelector("#hv");
 }
@@ -403,23 +470,23 @@ function loadTheme(thm) {
             const regc = hashSplit(reg);
             const hovc = hashSplit(hov);
             elems.forEach(e => {
-                e.style.background = `${regc[0]}`;
+                e.style.backgroundColor = `${regc[0]}`;
                 e.style.boxShadow = '0 5px ' + regc[1];
                 e.style.color = col;
             });
             extss += `${sel}:hover {
-                background: ${hovc[0]} !important;
+                background-color: ${hovc[0]} !important;
                 box-shadow: 0 5px ${hovc[1]} !important;
             }\n`;
         } else if (arr.length === 2) {
             const [rhf, col] = arr; // [regular-hover function, color]
             const rhfc = hashSplit(rhf);
             elems.forEach(e => {
-                e.style.background = rhfc[0];
+                e.style.backgroundColor = rhfc[0];
                 e.style.color = col;
             });
             extss += `${sel}:hover {
-                background: ${rhfc[1]} !important;
+                background-color: ${rhfc[1]} !important;
             }\n`;
         }
     }
@@ -428,6 +495,7 @@ function loadTheme(thm) {
     document.querySelector('#body').style.background = thm.body;
     document.querySelector('#body').style.border = `3px solid ${thm.body}`;
     document.querySelector('#body').style.boxShadow = `15px 15px 0 ${thm.bodyshadow}`;
+    document.querySelector('#vtext').style.color = thm.textcol;
     extra.style.color = thm.barnotes;
     extss += `.holding {
         border: 2px solid ${thm.holdbtnborder};
@@ -446,6 +514,7 @@ function loadTheme(thm) {
     }\n`;
 
     bcbsh('.arrow', thm.arrows);
+    // document.querySelectorAll(".arrow i").forEach(a => a.style.border = `solid ${thm.arrows[1]}`);
     extss += `.arrow>* {
         border: solid ${thm.arrows[1]};
     }\n`;
@@ -499,25 +568,31 @@ function loadTheme(thm) {
 }
 
 function ERR(m) {
-    const err = document.createElement("div");
-    expr = bar.value;
-    ePos = bar.selectionStart;
-    err.textContent = m;
-    err.id = "err";
-    document.body.append(err);
-    errMode = true;
-    err.classList.add('fadeIn');
-    setTimeout(() => {
-        err.classList.remove('fadeIn');
-        err.classList.add('fadeOut');
+    if(!errMode) {
+        const err = document.createElement("div");
+        expr = bar.value;
+        ePos = bar.selectionStart;
+        err.textContent = m;
+        err.id = "err";
+        document.body.append(err);
+        errMode = true;
+        err.classList.add('fadeIn');
         setTimeout(() => {
-            if(err) document.body.removeChild(err);
-            errMode = false;
-            bar.value = expr;
-            bar.setSelectionRange(ePos, ePos);
-        }, 1000);
-    }, 3000);
-    timesClickedAfterEvaluation++;
+            err.classList.remove('fadeIn');
+            err.classList.add('fadeOut');
+            setTimeout(() => {
+                if(err) document.body.removeChild(err);
+                errMode = false;
+                bar.value = expr;
+                bar.setSelectionRange(ePos, ePos);
+            }, 1000);
+        }, 3000);
+        timesClickedAfterEvaluation++;
+        saveState.tcae++;
+        USS();
+
+        decFS();
+    }
 }
 
 function count(c, s) {
@@ -531,6 +606,10 @@ function perms(n, r) {
     return fac(n) / fac(n - r);
 } function combs(n, r) {
     return fac(n) / (fac(n - r) * fac(r));
+}
+
+function esn(n) {
+    return 10 ** n;
 }
 
 function rvv(name) { // retrieve variable value
@@ -548,7 +627,8 @@ function NP(s) { // negative parse
     if(s[0] === '⁻') return -s.slice(1);
     else return +s;
 } function RNP(s) { // reverse negative parse
-    return s.replace(/^-(\d+(?:\.\d+)?)$/, "⁻$1");
+    return s.replace(/(\.\d*[^0])0+[Ee]/, "$1E")
+            .replace(/^-(\d+(?:\.\d+)?)$/, "⁻$1");
 }
 
 
@@ -568,12 +648,12 @@ function ansLocEval(ix) {
         return 'EntryError';
     }
 
-    return a;
+    return a.replace('E', '*10^');
 }
 
-function CEVAL(str, op = false) {
+function CEVAL(str, op = false, exact = false) {
     if(count("(", str) !== count(")", str)) {
-        if(!op) ERR("Invalid Expression");
+        if(!op) ERR("Invalid Bracketing");
         return "CalculationError";
     }
 
@@ -602,18 +682,21 @@ function CEVAL(str, op = false) {
         "laun": [LN, 1],
         "etxp": [Math.exp, 1],
         "pe": [perms, 2],
-        "co": [combs, 2]
+        "co": [combs, 2],
+        "esn": [esn, 1]
     };
     let c = str;
     c = c.replaceAll('pi', Math.PI);
     c = c.replaceAll('euler', euler);
-    c = c.replaceAll(/(\d)?(ET)/g, (_, p1) => {
-        return (p1 ? p1 : 1) + "*10^";
-    });
-    console.log(c, 'cevar log');
+    c = c.replaceAll('()', '(0)');
 
     try {
+        let whileIndex = 0;
         while(/\(.*\)/.test(c)) {
+            if(++whileIndex > 1000) {
+                ERR("Invalid Expression");
+                return "CalculationError";
+            }
             c = c.replace(/([a-zA-Z]+)?\(([^()]*)\)/, (_, p1, p2) => {
                 if(p1) {
                     console.log(p1, p2, 'p1 p2 log')
@@ -630,10 +713,10 @@ function CEVAL(str, op = false) {
                         return RNP(String(funcs[p1][0](...args)));
                     }
                 }
-                else return String(CEVAL(p2, op));
+                else return String(CEVAL(p2, op, true));
             });
         }
-        console.log(c);
+
         function srepl(op, cb) {
             let r = c;
             while(new RegExp(`[${op}]`).test(r) && !/^-\d+(\.\d+)?$/.test(r)) {
@@ -645,22 +728,25 @@ function CEVAL(str, op = false) {
             }
             return r;
         }
-        if(/^[*/+\^-]|[*/+\^-]$/.test(c)) throw Error()
+        if(/^[)*/+\^-]|[(*/+\^-]$/.test(c)) throw Error();
 
         c = srepl('\\^', (_, p1, p2, p3) => String(NP(p1) ** NP(p3)));
         c = srepl('*/', (_, p1, p2, p3) => String(p2 === '*' ? NP(p1) * NP(p3) : (
             +p3 === 0 ? 'ZeroDivisionError' : NP(p1) / NP(p3)
         )));
-        if(c === 'ZeroDivisionError') {
-            if(!op) ERR("Division By 0");
+        if(c.includes('ZeroDivisionError')) {
+            if(!op) {
+                c = 'ZeroDivisionError';
+                ERR("Division By 0");
+            }
             return c;
         }
-        console.log(c, 'before subtraction')
+        console.log(c, 'before add/sub')
         c = srepl('+-', (_, p1, p2, p3) => {
             console.log('srepl', p1, p2, p3);
             return RNP(String(p2 === '+' && !p1.endsWith('e') ? NP(p1) + NP(p3) : NP(p1) - NP(p3)))
         });
-        console.log(c, 'after subtraction')
+        console.log(c, 'after add/sub')
     } catch(e) {
         console.log('main error, op:', op);
         if(!op) ERR("Invalid Expression");
@@ -668,7 +754,7 @@ function CEVAL(str, op = false) {
     }
     if(c === 'Infinity') {
         console.log('infinity error');
-        if(!op) ERR("Calculation involves too large value (exceeds 1.7976931348623157E308)");
+        if(!op) ERR("Calculation involves value too large (exceeds ~1.7977E308)");
         c = "CalculationError";
     } else if(c !== c || !(new RegExp(`^${nReg}$`).test(RNP(c))) && !c.includes('Error')) { // if c is exactly NaN or the string is not a number (but not NaN)
         console.log('nan error', c)
@@ -676,18 +762,21 @@ function CEVAL(str, op = false) {
         c = "CalculationError";
     }
 
-    c = expoParse(c).replace(/(?<=\.\d*)0+$/, "");
+    c = (exact ? c : expoParse(c)).replace(/(?<=\.\d*)0+$/, "");
     c = c.replace(/\.$/, "");
 
-    console.log(c, 'csldkfjs');
+    console.log(c, 'end of ceval');
 
     decFS();
 
-    return c.includes("Error") ? c : RNP(c);
+    console.log(close(c), 'close c');
+
+    return c.includes("Error") ? c : RNP(String(close(c)));
 }
 
 function expoParse(s) {
-    if(+s >= 1e15 || +s !== 0 && +s > -9e-6 && +s < 1e-6) return (+s).toExponential()
+    const nps = NP(s);
+    if(+nps >= 1e15 || +nps !== 0 && +nps > -9e-6 && +nps < 1e-6) return (+nps).toExponential()
         .replace(/(\d(?:\.\d{8,})?)e([+-]\d+)/, (_, p1, p2) => 
             `${p1.slice(0, 11)}E${(p2[0] === '+' ? '' : '⁻') + p2.slice(1)}`)
     else return s;
@@ -773,36 +862,36 @@ function fac(num) {
         }
     }
 } function nth(a, dor, n, type) {
+    console.log('nth calculation', a, dor, n, type);
     if(type === 'arithmetic') return +a + (+n - 1) * +dor;
     else if (type === 'geometric') return +a * (+dor) ** (+n - 1);
 }
 
 function close(num) {
-	const rgxi = /^\.49/;
-    const rgx9 = /\.9{9,}/;
-    const rgx0 = /^(?<!0)\.0{9,}|\.\d*0+$/;
+    // const rgxe = /\./;
+	const rgxi = /\.(\d)9/;
+    const rgx9 = /\.[^9]+9{9,}/;
+    const rgx0 = /(?<!0)\.0{9,}/
+    const rgxd = /\.((0*)[^0]\d*)(0+$|0{9,})(?!\d*[eE])/;
     const nts = String(num);
-    console.log(nts, 'nts');
-    if (rgxi.test(nts) && rgx9.test(nts)) return undefined;
-    else return rgx9.test(nts) || rgx0.test(nts);
-}
+    const neg = nts[0] === '-';
 
-function closeTemplate(main) {
-    console.log('close', main);
-    console.log(close(main));
-    if(close(main)) return Math.round(main);
-    else if (close(main) === undefined) return 0.5; 
-    else return main;
+    const mfn = Math.floor(Math.abs(num));
+    console.log(rgxd.exec(nts), 'rgxdexecnts')
+    if(rgxi.test(nts) && rgx9.test(nts)) return (neg ? -1 : 1) * (mfn + Number(`0.${parseInt(rgxi.exec(nts)[1]) + 1}`));
+    else if (rgx0.test(nts)) return mfn;
+    else if (rgxd.test(nts)) return (neg ? -1 : 1) * (mfn + Number(`0.${rgxd.exec(nts)[1]}${rgxd.exec(nts)[2]}`));
+    else return num;
 }
 
 function realTemplate(val, fnc) {
     const main = Math[fnc](val * Math.PI / 180);
     console.log('main', main);
-    return (main / 1.2246467991473532e-16) % 1 === 0 && main < 1e-8 && main > -1e-8 && fnc !== 'cos' ? 0 : closeTemplate(main);
+    return (main / 1.2246467991473532e-16) % 1 === 0 && main < 1e-8 && main > -1e-8 && fnc !== 'cos' ? 0 : close(main);
 } function fakeTemplate(val, fnc) {
     const main = Math[fnc](val);
     console.log('main', main);
-    return (main / 1.2246467991473532e-16) % 1 === 0 && main < 1e-8 && main > -1e-8 && fnc !== 'cos' ? 0 : closeTemplate(main);
+    return (main / 1.2246467991473532e-16) % 1 === 0 && main < 1e-8 && main > -1e-8 && fnc !== 'cos' ? 0 : close(main);
 }
 
 function sinFake(val) { return fakeTemplate(val, "sin") }
@@ -814,10 +903,10 @@ function tanReal(val) { return realTemplate(val, "tan") }
 
 function arealTemplate(val, fnc) {
     const main = Math[fnc](val) / Math.PI * 180;
-	return closeTemplate(main);
+	return close(main);
 } function afakeTemplate(val, fnc) {
     const main = Math[fnc](val);
-    return closeTemplate(main);
+    return close(main);
 }
 function asinFake(val) { return afakeTemplate(val, "asin") }
 function acosFake(val) { return afakeTemplate(val, "acos") }
@@ -832,6 +921,7 @@ function ser2(num) {
     return series(st, dr, num, ty);
 } function nth2(num) {
     const { start:st, type:ty, difference_ratio:dr } = mutableSeriesConfigSettings;
+    console.log('nth2 num input', num);
     return nth(st, dr, num, ty);
 }
 
@@ -866,6 +956,15 @@ function spliceString(str, add, ix) {
     return split.join('');
 }
 
+function changeVar(name, val, del = false) {
+    if(del) delete vnl[name];
+    else vnl[name] = val;
+    localStorage.varVals = JSON.stringify(vnl);
+}
+
+function USS() { // update save state
+    localStorage.saveState = JSON.stringify(saveState);
+}
 
 
 
@@ -916,7 +1015,7 @@ function ansInput(ansinput, ev, reset = null, dec = false) {
         }
         if(ev.key === "Backspace" && ansinput.value === "Ans()") {
             ansinput.value = "";
-        } 
+        } //else if (ev.key === "Backspace" && ansinput.value === "Ans()")
     } else ev.preventDefault();
 }
 
@@ -950,6 +1049,7 @@ function ansEntries() {
             localStorage.removeItem("date");
             eClear.style.opacity = 1;
             fadeOut('eClear');
+            eCount.textContent = "0";
             eLeft.textContent = "Max vacant entries";
         });
     }, 1000);
@@ -1012,8 +1112,14 @@ function excRnd() {
     exc_rnd.classList.toggle("holding");
     if(exact) {
         exc_rnd.textContent = "ROUND";
+        // if(bar.value === ans && decCount(ans) > fixed) {
+        //     bar.value = RNP(NP(bar.value).toFixed(fixed));
+        // }
         delete proxEOBJ.exc_rnd;
     } else {
+        // if(bar.value === ans && decCount(ans) > fixed) {
+        //     bar.value = RNP(NP(bar.value).toFixed(fixed));
+        // }
         exc_rnd.textContent = "EXACT";
         proxEOBJ.exc_rnd = "FIX"+fixed;
     }
@@ -1029,19 +1135,19 @@ bar.addEventListener("click", e => {
 
 function mc() {
     memory = 0;
-    bar.value = "";
+    barvalue("");
 } function mp() {
     if(!isNaN(bar.value)) {
         memory += parseFloat(bar.value);
-        bar.value = "";
+        barvalue("");
     }
 } function mm() {
     if(!isNaN(bar.value)) {
         memory -= parseFloat(bar.value);
-        bar.value = "";
+        barvalue("");
     }
 } function mr() {
-    bar.value = memory;
+    barvalue(memory);
 }
 
 document.getElementById('mc').addEventListener("click", mc);
@@ -1056,6 +1162,7 @@ function sndAction() {
     });
     if(timesActivated & 1 === 1) {
         proxEOBJ.snd = "2ND";
+        console.log('snd set');
         for(let i = 0; i < size; i++) {
             const si = smalls[i];
             const ni = nbs[i];
@@ -1070,7 +1177,8 @@ function sndAction() {
         sndactive = true;
         sndsub.style.opacity = 1;
         sndsub.style.fontWeight = 600;
-    } else {
+    }
+    else {
         delete proxEOBJ.snd;
         for(let i = 0; i < size; i++) {
             const si = smalls[i];
@@ -1092,9 +1200,8 @@ function sndAction() {
 document.getElementById("sndb").addEventListener("click", sndAction);
 
 function qsaHover(hv, rr) { // query selector answer hover (hover value, regex replacer)
-    const ES = LSF("entries").length; // entry size
-
     function simpleAnsfRepl(text) { // simple answer function replacement
+        const ES = LSF("entries").length; // entry size
         if(ansRgx.test(text)) {
             let seqIx = ansLoc(Number(text.replace(ansRgx, "$1")));
             if(seqIx?.includes("Error")) seqIx = `<span class='red'>${seqIx}</span>`;
@@ -1112,6 +1219,7 @@ function qsaHover(hv, rr) { // query selector answer hover (hover value, regex r
             HV.id = "hv";
             HV.classList.add('fadeIn');
             document.body.append(HV);
+            // console.log(HVQS(), document.querySelector("#hv"), HV);
         }
 
         console.log(hvtc, HVQS(), 'hvtc + hvqs');
@@ -1137,33 +1245,83 @@ function SIPev() {
     });
 }
 
+function mainConfigTemplate(stv, drv, addProxy = true) {
+    mutableSeriesConfigSettings.start = stv;
+    mutableSeriesConfigSettings.difference_ratio = drv;
+    const mscst = [...mutableSeriesConfigSettings.type][0].toUpperCase();
+    const mscsdr = mutableSeriesConfigSettings.difference_ratio;
+    const fmscsdr = fullMSCS(mscsdr);
+    const mscsv = mutableSeriesConfigSettings.start;
+    const fmscsv = fullMSCS(mscsv);
+    const evalRgx = /\d+(\.\d+)?(E⁻?\d+)?/;
+    if(JSON.stringify(mutableSeriesConfigSettings) !== JSON.stringify(defaultSeriesConfigSettings)) {
+        const seqVal1 = Number(mscsdr.replace(ansRgx, "$1"));
+        const seqVal2 = Number(mscsv.replace(ansRgx, "$1"));
+        const seqEval = localStorage.entryVals.split(',');
+        const seqIx1 = Number(seqEval[seqVal1 - 1]);
+        const seqIx2 = Number(seqEval[seqVal2 - 1]);
+        const astv = ansRgx.test(stv);
+        const adrv = ansRgx.test(drv);
+        const estv = evalRgx.test(stv) && !isNaN(seqIx1);
+        const edrv = evalRgx.test(drv) && !isNaN(seqIx2);
+        console.log(seqIx1, seqIx2, 'seqixs');
+        console.log(seqVal1, seqVal2, 'seq values');
+        if((!astv && !adrv) || (!isNaN(seqVal1) && seqVal1 >= 1 && seqVal1 < seqEval.length) && 
+        (!isNaN(seqVal2) && seqVal2 >= 1 && seqVal2 < seqEval.length) && 
+        [seqVal1, seqVal2].every(Number.isInteger) && (astv ? estv : true) && (adrv ? edrv : true)) {
+            console.log(astv, adrv, estv, edrv, 'config stage A/X');
+            mutableSeriesConfigSettings.difference_ratio = adrv ? seqIx1 : +mscsdr;
+            mutableSeriesConfigSettings.start = astv ? seqIx2 : +mscsv;
+            baseSub.textContent = astv || adrv ? "A" : "X";
+            baseSub.style.color = curTheme.logserbase[astv || adrv ? "answer" : "constant"]; 
+            baseSubPopup.textContent = ansRgx.test(stv) ? seqIx1 : +mscsdr;
+            seqErr = false;
+            console.log(mutableSeriesConfigSettings, 'mutableseriesconfigsettings');
+        } else {
+            baseSub.textContent = "E";
+            baseSub.style.color = curTheme.logserbase.error;
+            seqErr = true;
+        }
+        
+        if(addProxy)
+            proxEOBJ.sequence = `S<sub>${mscst}</sub>V${fmscsv}${mscst == 'G' ? 'R' : 'D'}${fmscsdr}`;
+    } else {
+        if(addProxy) {
+            delete proxEOBJ.sequence;
+            seqErr = false;
+        }
+    }
+}
+
+function arithTemplate() {
+    geo.style.opacity = 0.5;
+    ari.style.opacity = 1;
+    mutableSeriesConfigSettings.type = "arithmetic";
+    if(JSON.stringify(mutableSeriesConfigSettings) === jsonDef) {
+        reset.style.visibility = "hidden";
+    }
+    diffh2.textContent = "Difference";
+} function geomTemplate() {
+    geo.style.opacity = 1;
+    ari.style.opacity = 0.5;
+    mutableSeriesConfigSettings.type = "geometric";
+    reset.style.visibility = "visible";
+    diffh2.textContent = "Ratio";
+}
+
 function config() {
     const reference = SIP.onclick;
     if(!sndactive) return;
     else {
         clearTimeout(this.downTimer);
         this.downTimer = setTimeout(() => {
-            const jsonDef = JSON.stringify(defaultSeriesConfigSettings);
             if(jsonDef === JSON.stringify(mutableSeriesConfigSettings)) {
                 reset.style.visibility = "hidden";
             } else reset.style.visibility = "visible";
             scc.style.visibility = "visible";
             SIPev();
-            ari.addEventListener("click", () => {
-                geo.style.opacity = 0.5;
-                ari.style.opacity = 1;
-                mutableSeriesConfigSettings.type = "arithmetic";
-                if(JSON.stringify(mutableSeriesConfigSettings) === jsonDef) {
-                    reset.style.visibility = "hidden";
-                }
-                diffh2.textContent = "Difference";
-            }); geo.addEventListener("click", () => {
-                geo.style.opacity = 1;
-                ari.style.opacity = 0.5;
-                mutableSeriesConfigSettings.type = "geometric";
-                reset.style.visibility = "visible";
-                diffh2.textContent = "Ratio";
-            });
+            ari.addEventListener("click", arithTemplate); 
+            geo.addEventListener("click", geomTemplate);
             stval.addEventListener("keydown", ev => {
                 ansInput(stval, ev, reset, true);
                 if(JSON.stringify(mutableSeriesConfigSettings) !== jsonDef) {
@@ -1184,46 +1342,14 @@ function config() {
                 serDiff.value = 1;
                 reset.style.visibility = "hidden";
                 baseSub.textContent = 'x'
-                baseSub.style.color = "#b8e994";
+                baseSub.style.color = curTheme.specfncs.sndmode.up[0];
             });
         }, 1000);
         save.addEventListener("click", () => {
             if(serDiff.value.length > 0 && stval.value.length > 0) {
-                mutableSeriesConfigSettings.start = stval.value;
-                mutableSeriesConfigSettings.difference_ratio = serDiff.value;
-                const mscst = [...mutableSeriesConfigSettings.type][0].toUpperCase();
-                const mscsdr = mutableSeriesConfigSettings.difference_ratio;
-                const fmscsdr = fullMSCS(mscsdr);
-                const mscsv = mutableSeriesConfigSettings.start;
-                const fmscsv = fullMSCS(mscsv);
-                if(JSON.stringify(mutableSeriesConfigSettings) !== JSON.stringify(defaultSeriesConfigSettings)) {
-                    if(ansRgx.test(stval.value)) {
-                        const seqVal1 = Number(mscsdr.replace(ansRgx, "$1"));
-                        const seqVal2 = Number(mscsv.replace(ansRgx, "$1"));
-                        const seqEval = localStorage.entryVals.split(',');
-                        const seqIx1 = Number(seqEval[seqVal1 - 1]);
-                        const seqIx2 = Number(seqEval[seqVal2 - 1]);
-                        console.log(seqIx1, seqIx2, 'seqixs');
-                        if((!isNaN(seqVal1) && seqVal1 >= 1 && seqVal1 < seqEval.length) && 
-                        (!isNaN(seqVal2) && seqVal2 >= 1 && seqVal2 < seqEval.length) && 
-                        [seqVal1, seqVal2].every(Number.isInteger)) {
-                            mutableSeriesConfigSettings.difference_ratio = seqIx1;
-                            mutableSeriesConfigSettings.start = seqIx2;
-                            baseSub.textContent = "A";
-                            baseSub.style.color = "#0be881";
-                            baseSubPopup.textContent = seqIx1;
-                            seqErr = false;
-                        } else {
-                            baseSub.textContent = "E";
-                            baseSub.style.color = "#ea2027";
-                            seqErr = true;
-                        }
-                    }
-                    proxEOBJ.sequence = `S<sub>${mscst}</sub>V${fmscsv}${mscst == 'G' ? 'R' : 'D'}${fmscsdr}`;
-                } else {
-                    delete proxEOBJ.sequence;
-                    seqErr = false;
-                }
+                mainConfigTemplate(stval.value, serDiff.value);
+                
+                // document.querySelectorAll(".hoverValue").forEach(q => qsaHover(q, /Ans #\d+ --> \d+(\.\d+)?\s\|\s/));
                 SIP.onclick = reference;
                 bar.disabled = false;
                 bnsnsnr.forEach(el => {
@@ -1244,6 +1370,31 @@ function LBev() {
     bnsdnrd.forEach(el => {
         el.disabled = true;
     });
+}
+
+function ansLogTemplate(liv) { // parameter is log input value
+    const baseVal = Number(liv.replace(ansRgx, "$1"));
+    const evals = localStorage.entryVals.split(',');
+    const indexedVal = Number(evals[baseVal - 1]);
+    const evalRgx = /\d+(\.\d+)?(E⁻?\d+)?/;
+    let baseSubPopup = document.getElementById('baseSubPopup');
+    if(Number.isInteger(baseVal) && baseVal >= 1 && baseVal <= evals.length && !evalRgx.test(indexedVal)) {
+        logBase = indexedVal;
+        baseSubLog.textContent = "A";
+        baseSubLog.style.color = curTheme.logserbase.answer;
+        baseSubPopup.textContent = indexedVal;
+        logErr = false;
+    } else {
+        baseSubLog.textContent = "E";
+        baseSubLog.style.color = curTheme.logserbase.error;
+        baseSubPopup.innerHTML = "<em>x</em> in Ans(x) is not valid";
+        logErr = true;
+    }
+} function nonAnsLogTemplate(liv) {
+    baseSubLog.textContent = "X";
+    baseSubLog.style.color = curTheme.logserbase.constant;
+    logBase = liv;
+    logErr = false;
 }
 
 function logBaseHold() {
@@ -1276,33 +1427,16 @@ function logBaseHold() {
                 }
                 if(logInput.value.search(ansRgx) > -1) {
                     proxEOBJ.log = "LOG"+`<span class="hoverValue"><sub>${logInput.value}</sub></span>`;
-                    const baseVal = Number(logInput.value.replace(ansRgx, "$1"));
-                    const evals = localStorage.entryVals.split(',');
-                    const indexedVal = Number(evals[baseVal - 1]);
-                    let baseSubPopup = document.getElementById('baseSubPopup');
-                    if(Number.isInteger(baseVal) && baseVal >= 1 && baseVal <= evals.length) {
-                        logBase = indexedVal;
-                        baseSubLog.textContent = "A";
-                        baseSubLog.style.color = curTheme.logserbase.answer;
-                        baseSubPopup.textContent = indexedVal;
-                        logErr = false;
-                    } else {
-                        baseSubLog.textContent = "E";
-                        baseSubLog.style.color = curTheme.logserbase.error;
-                        baseSubPopup.innerHTML = "<em>x</em> in Ans(x) is not valid";
-                        logErr = true;
-                    }   
+                    ansLogTemplate(logInput.value);
                 } else if (logInput.value !== "10") {
                     proxEOBJ.log = `LOG<sub>${logInput.value}</sub>`;
-                    baseSubLog.textContent = "X";
-                    baseSubLog.style.color = curTheme.logserbase.constant;
-                    logBase = logInput.value;
-                    logErr = false;
+                    nonAnsLogTemplate(logInput.value);
                 } else {
                     logBase = 10;
                     baseSubLog.style.color = curTheme.textcol;
                     logErr = false;
                 }
+                // document.querySelectorAll(".hoverValue").forEach(q => qsaHover(q, /Ans #\d+ --> \d+(\.\d+)?\s\|\s/));
                 LogE.onclick = reference;
                 bar.disabled = false;
                 bnsdnrd.forEach(el => {
@@ -1318,21 +1452,28 @@ function logBaseHold() {
 LogE.addEventListener("mousedown", logBaseHold);
 LogE.addEventListener("mouseup", resetDownTimer);
 
+function unError() {
+    document.body.removeChild(document.querySelector("#err"));
+    errMode = false;
+    bar.value = expr;
+    bar.setSelectionRange(ePos, ePos);
+}
+
 function setValue(v) {
     console.log(v, 'setvalue');
     if(errMode) {
-        document.body.removeChild(document.querySelector("#err"));
-        errMode = false;
-        bar.value = expr;
-        bar.setSelectionRange(ePos, ePos);
+        unError();
     } else {
         timesClickedAfterEvaluation++;
+        saveState.tcae++;
+        USS();
         let inputIx = bar.selectionStart;
         function template(dset, attr, pre = "", app = "") {
             const vgaa = v.getAttribute(attr);
+            console.log(dset, attr, pre, app, 'dset attr pre app');
             let i = Number(dset) + app.length + pre.length;
             let a = inputIx + i;
-            bar.value = brackForClick(inputIx - 1, bar.value, pre + vgaa + app);
+            barvalue(brackForClick(inputIx - 1, bar.value, pre + vgaa + app));
             const iftcae = timesClickedAfterEvaluation === 1 && ![...operArr, '!', '%'].includes(vgaa) ? i : a;
             console.log(iftcae, i, a);
             bar.setSelectionRange(iftcae, iftcae);
@@ -1343,10 +1484,10 @@ function setValue(v) {
                 template(v.dataset.valix, "data-val", "0");
             }
             if(!(vgadv === '.' && !Number.isInteger(+ans) && bar.value.slice(inputIx - 3, inputIx) === 'Ans')) {
-                if(timesClickedAfterEvaluation === 1) bar.value = '';
+                if(timesClickedAfterEvaluation === 1) barvalue('');
                 const io = [...operArr, '!', '%'].includes(vgadv);
                 if(io && bar.value === '') {
-                    bar.value = 'Ans';
+                    barvalue('Ans');
                     inputIx = bar.selectionStart;
                 } if(!(obef && io)) {
                     if(vgadv === 'log()' && logErr) {
@@ -1365,7 +1506,7 @@ function setValue(v) {
                     const s = [...bar.value];
                     const bss = bar.selectionStart;
                     s.splice(bss - 1, 1, sbef ? 'N' : 'S');
-                    bar.value = s.join('');
+                    barvalue(s.join(''));
                     bar.setSelectionRange(bss, bss);
                 }
             } else template(svi, "data-specval");
@@ -1380,9 +1521,14 @@ document.querySelectorAll(".val")
     .forEach(n => n.addEventListener("click", () => setValue(n)));
 
 document.getElementById('cac').addEventListener("click", () => {
-    bar.value = "";
-    timesClickedAfterEvaluation = 0;
-    ansFuncHover();
+    if(!errMode) {
+        barvalue("");
+        timesClickedAfterEvaluation = 0;
+        saveState.tcae = 0;
+        USS();
+        decFS();
+        ansFuncHover();
+    } else unError();
 });
 
 function degRad() {
@@ -1405,8 +1551,8 @@ function degRad() {
 } 
 deg_rad.addEventListener("click", degRad);
 
-function evaluate(string, eop = false) {
-    const rgxVal = "(⁻?\\d+(?:\\.\\d+)?|\\(.*\\)|(?<!ak|p)e|π|V.)";
+function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = false) {
+    const rgxVal = "(⁻?\\d+(?:\\.\\d+)?|(?<!ak|p)e|π|V.)";
 
     const { snd: peb, ...pea } = pieE;
     const { snd: rob, ...roa } = root;
@@ -1423,19 +1569,22 @@ function evaluate(string, eop = false) {
     const ava = accvar;
 
     const sndOper = {
-        "π" : pea, 
-        "e(?!xp)" : peb,
-
         "(?<!n)√" : roa, 
         [rgxVal + "n√\\(" + rgxVal + "\\)"] : rob,
 
-        [rgxVal + "!"] : fpa, 
+        [rgxVal + "!"] : fpa,
         "%" : fpb,
         
         [rgxVal + "C" + rgxVal] : pca, 
         [rgxVal + "P" + rgxVal] : pcb,
 
-        "(?<!arc)sin" : sia, 
+        ["log(" + rgxVal + ")"] : lea,
+        ["E" + rgxVal] : leb,
+
+        "π" : pea,
+        "e(?!xp|sn)" : peb,
+
+        "(?<!arc)sin" : sia,
         "arcsin" : sib,
 
         "(?<!arc)cos" : coa, 
@@ -1448,14 +1597,11 @@ function evaluate(string, eop = false) {
         ["S" + rgxVal] : esb,
         ["N" + rgxVal] : esc,
 
-        ["log(" + rgxVal + ")"] : lea,
-        "E" : leb,
+        "Ans(\\([1-9]\\d*\\))": ansf,
+        "V.": ava,
 
         "ln" : lxa,
-        "exp" : lxb,
-
-        "Ans(\\([1-9]\\d*\\))": ansf,
-        "V.": ava
+        "exp" : lxb
     };
 
     let str = '';
@@ -1488,6 +1634,11 @@ function evaluate(string, eop = false) {
         serr(/Ans(?!\()/g, ans);
     }
 
+    console.log(str, 'str before V switch');
+    serr(/V(.)/g, "(V$1)");
+    // serr(new RegExp(`${rgxVal}?(E${rgxVal})`), "($1$2)");
+    console.log(str, 'str after V switch');
+
     // implicit multiplication
     for(const k in sndOper) {
         const val = sndOper[k];
@@ -1496,26 +1647,24 @@ function evaluate(string, eop = false) {
         if(rgx.test(str) && val?.variable) {
             console.log(val, rgx, 'valrgx');
             const type = val.variable;
-            const rvleft = spliceString(rgxVal, '(?<=', 1) + ')'; // regex var for imp. mul. on the left
-            const rvright = spliceString(rgxVal, '(?=', 1) + ')'; // regex var for imp. mul. on the right
-
-            const rstr = new RegExp(type === 'b' ? `${rvleft}(?!\\*)${k}|${k}(?!\\*)${rvright}` : (
-                type === 'l' ? `${rvleft}(?!\\*)${k}` : `${k}(?!\\*)${rvright}`
+            const rvleft = spliceString(rgxVal, '(?<l>\\)|', 0) + ')'; // regex var for imp. mul. on the left
+            const rvright = spliceString(rgxVal, '(?<r>\\(|', 0) + ')'; // regex var for imp. mul. on the right
+            console.log(rvleft, rvright);
+            const rstr = new RegExp(type === 'b' ? `${rvleft}(?!\\*)(?<r>${k})|(?<l>${k})(?!\\*)${rvright}` : (
+                type === 'l' ? `${rvleft}(?!\\*)(?<r>${k})` : `(?<l>${k})(?!\\*)${rvright}`
             ));
+
             let ix = str.search(rstr);
             console.log(str, rstr, ix, 'rgxix')
             let equ = str === scopy;
-            const isLeft = new RegExp(`${rvleft}(?!\\*)${k}`).test(str) ? -1 : 1;
-            console.log('isleft', isLeft);
-            const o = type === 's' ? 1 : (type === 'r' || type === 'l' || k === 'V.' ? isLeft : 0);
             let whileIndex = 0;
             while(ix >= 0 && equ) {
                 if(++whileIndex > 50) {
                     ERR("Invalid Expression");
                     return "CalculationError";
                 }
-                console.log(str, ix, o, 'strix loop');
-                str = brackForClick(ix + o, str, "*");
+
+                str = str.replace(rstr, rstr.exec(str)?.groups?.l + "*" + rstr.exec(str)?.groups?.r);
                 equ = str !== scopy;
                 ix = str.search(rstr);
             }
@@ -1523,24 +1672,13 @@ function evaluate(string, eop = false) {
     }
 
 
-    console.log(str, 'impmul');
+    console.log(str, 'str after impmul');
 
     serr(/V(.)/g, (_, p1) => rvv(p1)); // switch variables after implicit multiplication is present
 
-    console.log(str, 'impmul2');
+    console.log(str, 'str after vswitch 2');
 
     // replacements
-    for(const k in sndOper) {
-        const val = sndOper[k];
-        const rgx = new RegExp(k, 'g');
-        let initTest = rgx.test(str);
-        if(initTest) {
-            if(val?.fnc) while(str.search(rgx) > -1) 
-                serr(rgx, val.conversion);
-            else serr(rgx, val.conversion);
-        } 
-    }
-
     const brackRGX = new RegExp(`\\)\\(|\\)${rgxVal}|${rgxVal}\\(`);
     const TbrackRGX = /\)\(/g;
     serr(TbrackRGX, ")*(");
@@ -1553,24 +1691,50 @@ function evaluate(string, eop = false) {
         str = brackForClick(str.search(brackRGX), str, "*");
     }
 
+    function mainConversion() {
+        for(const k in sndOper) {
+            const val = sndOper[k];
+            const rgx = new RegExp(k, 'g');
+            let initTest = rgx.test(str);
+            if(initTest) {
+                if(val?.fnc) while(str.search(rgx) > -1) 
+                    serr(rgx, val.conversion);
+                else serr(rgx, val.conversion);
+            } 
+        }
+    }
+
+    console.log(str, 'str before main conversion');
+
+    mainConversion();
+
+    console.log(str, 'str after main conversion');
+
+    decFS();
+
     const evaluation = CEVAL(str, eop);
     if(evaluation?.includes('Error')) return evaluation;
     else {
-        const evalN = closeTemplate(evaluation);
+        const evalN = close(evaluation);
         console.log((+evalN).toFixed(fixed), 'evaln');
         return expoParse(!exact ? limit(evalN) : RNP(NP(evalN).toFixed(fixed)));
     }
 }
 
 function evalSet() {
+    if(bar.value === '') return;
+
     timesClickedAfterEvaluation = 0;
-    if(lss < max) {
+    saveState.tcae = 0;
+    USS();
+    if(lss < max && !errMode) {
+        eCount.textContent++;
         if(!localStorage.entries) {
             localStorage.entries = bar.value + ",";
         } else localStorage.entries += bar.value + ",";
         
         // where bar changes value
-        bar.value = evaluate(bar.value);
+        barvalue(evaluate(bar.value));
         ans = bar.value;
         
         decFS();
@@ -1599,9 +1763,11 @@ function evalSet() {
 
         getEntries();
     } else {
-        ERR("No more space for answer entries");
-        bar.value = 'EntryError';
-        eLeft.textContent = "0 vacant entries";
+        if(!errMode) {
+            ERR("No more space for answer entries");
+            bar.value = 'EntryError';
+            eLeft.textContent = "0 vacant entries";
+        } else unError();
     }
 }
 
@@ -1611,89 +1777,107 @@ copy.addEventListener("click", () => {
     const type = "text/plain";
     navigator.clipboard.write([new ClipboardItem({ [type]: new Blob([bar.value], { type }) })])
         .then(() => {
-            copyResult.style.color = "#4cd137";
-            copyResult.textContent = "Bar was successfully copied";
+            copy.classList.add("success");
+            setTimeout(() => {
+                copy.classList.remove("success");
+            }, 500);
         })
         .catch(() => {
-            copyResult.style.color = "red";
-            copyResult.textContent = "Bar was unable to be copied";
+            copy.classList.add("failure");
+            setTimeout(() => {
+                copy.classList.remove("failure");
+            }, 500);
+            ERR("Bar was unable to be copied");
+            bar.value = "CopyError";
         });
-    copyResult.classList.add("fadeIn");
-    setTimeout(() => {
-        copyResult.classList.add("fadeOut");
-        copyResult.classList.remove("fadeIn");
-    }, 1000);
 });
 
 paste.addEventListener("click", async () => {
     try {
-        const pasted = await navigator.clipboard.readText();
-        console.log(+evaluate(pasted, true), 'evaluationsdfjl');
+        const pasted = (await navigator.clipboard.readText()).trim();
+        const pastesplit = [...pasted];
+        console.log(pastesplit, 'pastesplit');
         const exprPart = [...bar.value];
-        console.log(exprPart);
-        exprPart.splice(bar.selectionStart + 1, 0, pasted.replace(/\*/g, '×').replace(/\//g, '÷'));
-        const accEP = exprPart.join('');
-        console.log(accEP, 'exprpart', CEVAL(accEP, true));
-        if(String(CEVAL(accEP, true)).includes('Error') && isNaN(+evaluate(accEP, true))) {
+        if(pastesplit.every((e, i) => 
+            [...operArr, '(', ')'].includes(e) || /\d|[πeCP!%NSE]/.test(e) || e === 'V' && /./.test(pastesplit[i + 1]))
+            || /(((arc)?(sin|cos|tan))(?=\())|(n?√|ln|log|exp(?=\())/.test(pasted)) {
+                exprPart.splice(bar.selectionStart, 0, pasted.replace(/\*/g, '×').replace(/\//g, '÷'));
+                const newbss = bar.selectionStart + pasted.length;
+                const accEP = exprPart.join('');
+                barvalue(accEP);
+                bar.setSelectionRange(newbss, newbss);
+                saveUpdate('cpos', bar.selectionStart);
+                timesClickedAfterEvaluation++;
+                saveState.tcae++;
+                USS();
+
+                paste.classList.add("success");
+                setTimeout(() => {
+                    paste.classList.remove("success");
+                }, 500);
+        } else {
+            paste.classList.add("failure");
+            setTimeout(() => {
+                paste.classList.remove("failure");
+            }, 500);
             ERR("Invalid Expression Pasted");
             bar.value = "PasteError";
-        } else {
-            bar.value = accEP;
-            timesClickedAfterEvaluation++;
-            pasteResult.classList.add("fadeIn");
-            setTimeout(() => {
-                pasteResult.classList.add("fadeOut");
-                pasteResult.classList.remove("fadeIn");
-            }, 1000);
         }
     } catch (error) {
+        paste.classList.add("failure");
+        setTimeout(() => {
+            paste.classList.remove("failure");
+        }, 500);
         ERR("Could not read clipboard");
         bar.value = "PasteError";
     }
 });
 
 function DEL() {
-    if(timesClickedAfterEvaluation === 0 || bar.value === '') bar.value = '';
+    if(errMode) unError();
     else {
-        let barPos = bar.selectionStart;
-        if(bar.value.length === 1 && barPos === 1) {
-            bar.value = '';
-        } else {
-            const BV = [...bar.value];
-            let isBlock = false;
-            let rangeValue = barPos === 0 || barPos == bar.value.length - 1 ? barPos : barPos - 1;
-            for(const e of fullBlockArr) {
-                console.log(e, 'fba');
-                const ee = e + ")";
-                const l = e.length;
-                const ll = ee.length;
-                const r = barPos - l;
-                const rr = barPos - ll;
-                const block = BV.slice(r, barPos).join('');
-                const block2 = BV.slice(rr, barPos).join('');
-                if(block2 === ee) {
-                    const adder = operArr.indexOf(BV[barPos + 1]) > -1 ? 2 : 1;
-                    BV.splice(r - 1, l + adder);
-                    rangeValue -= block2.length;
-                }
-                if(block === e) {
-                    if(BV[barPos] === ")" && e !== "Ans") {
+        if(timesClickedAfterEvaluation === 0 || bar.value === '') barvalue('');
+        else {
+            let barPos = bar.selectionStart;
+            if(bar.value.length === 1 && barPos === 1) {
+                barvalue('');
+            } else {
+                const BV = [...bar.value];
+                let isBlock = false;
+                let rangeValue = barPos === 0 || barPos == bar.value.length - 1 ? barPos : barPos - 1;
+                for(const e of fullBlockArr) {
+                    console.log(e, 'fba');
+                    const ee = e + ")";
+                    const l = e.length;
+                    const ll = ee.length;
+                    const r = barPos - l;
+                    const rr = barPos - ll;
+                    const block = BV.slice(r, barPos).join('');
+                    const block2 = BV.slice(rr, barPos).join('');
+                    if(block2 === ee) {
                         const adder = operArr.indexOf(BV[barPos + 1]) > -1 ? 2 : 1;
-                        BV.splice(r, l + adder);
+                        BV.splice(r - 1, l + adder);
+                        rangeValue -= block2.length;
                     }
-                    else BV.splice(r, l);
-                    bar.value = BV.join('');
-                    rangeValue -= block.length - 1;
-                    isBlock = true;
-                    break;
-                } else continue;
+                    if(block === e) {
+                        if(BV[barPos] === ")" && e !== "Ans") {
+                            const adder = operArr.indexOf(BV[barPos + 1]) > -1 ? 2 : 1;
+                            BV.splice(r, l + adder);
+                        }
+                        else BV.splice(r, l);
+                        barvalue(BV.join(''));
+                        rangeValue -= block.length - 1;
+                        isBlock = true;
+                        break;
+                    } else continue;
+                }
+                if(!isBlock) {
+                    if(barPos > 0) BV.splice(barPos - 1, 1);
+                    barvalue(BV.join(''));
+                    if(barPos === rangeValue) rangeValue--;
+                }
+                bar.setSelectionRange(rangeValue, rangeValue);
             }
-            if(!isBlock) {
-                if(barPos > 0) BV.splice(barPos - 1, 1);
-                bar.value = BV.join('');
-                if(barPos === rangeValue) rangeValue--;
-            }
-            bar.setSelectionRange(rangeValue, rangeValue);
         }
     }
 
@@ -1706,7 +1890,7 @@ function ARROW(binaryDirection) {
         const b = !!binaryDirection;
         const barPos = bar.selectionStart;
         const BV = [...bar.value];
-        const isBlock = false;
+        let isBlock = false;
         for(const e of fullBlockArr) {
             const l = e.length;
             const r = !b ? barPos - l : barPos + l;
@@ -1720,8 +1904,10 @@ function ARROW(binaryDirection) {
         if(!isBlock) {
             const caret = bar.selectionStart;
             bar.setSelectionRange((!b ? caret - 1 : caret + 1), (!b ? caret - 1 : caret + 1));
+            saveUpdate('cpos', bar.selectionStart);
         }
     }
+    decFS();
 }
 
 function ansFuncHover() {
@@ -1761,28 +1947,34 @@ bar.addEventListener("keyup", () => {
     ansFuncHover();
 });
 
+bar.addEventListener("beforeinput", ev => {
+    if(ev.inputType === 'insertText' && ev.data === '. ') ev.preventDefault();
+});
+
 bar.addEventListener("keydown", ev => {
     if(errMode) {
         ev.preventDefault();
         document.body.removeChild(document.querySelector("#err"));
         errMode = false;
-        bar.value = expr;
+        barvalue(expr);
         bar.setSelectionRange(ePos, ePos);
     } else {
-        function operIsThere() {
-            return operArr.indexOf(bar.value[ev.target.selectionStart - 1]) > -1;
+        function operIsThere(nodot = false) {
+            return (nodot ? operArr.filter(o => o !== '.') : operArr).indexOf(bar.value[ev.target.selectionStart - 1]) > -1;
         }
 
         function type(s, i) {
             const etss = ev.target.selectionStart;
             if(!(ev.key === '.' && !Number.isInteger(+ans) && bar.value.slice(etss - 3, etss) === 'Ans')) {
                 const inputIx = ev.target.selectionStart;
-                bar.value = timesClickedAfterEvaluation === 0 ? s : brackForClick(inputIx - 1, bar.value, s);
+                barvalue(timesClickedAfterEvaluation === 0 ? s : brackForClick(inputIx - 1, bar.value, s));
                 console.log(inputIx, 'inputix', i);
                 const iftcae = timesClickedAfterEvaluation === 0 ? i : inputIx + i;
                 bar.setSelectionRange(iftcae, iftcae);
                 inputIndex += i;
                 timesClickedAfterEvaluation++;
+                saveState.tcae++;
+                USS();
             }
         }
         
@@ -1793,7 +1985,7 @@ bar.addEventListener("keydown", ev => {
             if(bar.value === '' || timesClickedAfterEvaluation === 0) {
                 if(ans != null || timesClickedAfterEvaluation === 1) {
                     if(Number.isInteger(+ans) && char === '.' || char !== '.') {
-                        bar.value = '';
+                        barvalue('');
                         ansSuperTypeTemplate();
                     }
                 }
@@ -1809,14 +2001,22 @@ bar.addEventListener("keydown", ev => {
             if(!Object.keys(vnl).includes(ev.key) && !ev.key?.[1]) {
                 ev.preventDefault();
                 ERR(`Variable, ${ev.key} does not exist`);
-                bar.value = "VariableError";
+                barvalue("VariableError");
             } 
+            // else {
+            //     console.log(vnl, ev.key);
+            //     if(/Error|Bounds/.test(vnl[ev.key])) {
+            //         ev.preventDefault();
+            //         ERR(`Invalid entry input for variable, ${ev.key}`);
+            //         bar.value = "EntryError";
+            //     }
+            // }
         } 
 
         else switch(ev.key) {
             case "A":
                 ev.preventDefault();
-                bar.value = "";
+                barvalue("");
                 break;
 
             case "p":
@@ -1833,6 +2033,13 @@ bar.addEventListener("keydown", ev => {
             case "(":
                 ev.preventDefault();
                 type("()", 1);
+                break;
+
+            case ")":
+                ev.preventDefault();
+                const numOpenParen = [...bar.value].filter(e => e === '(').length;
+                const numCloseParen = [...bar.value].filter(e => e === ')').length;
+                if(numOpenParen > numCloseParen) type(")", 1);
                 break;
 
             case "s":
@@ -2008,9 +2215,9 @@ bar.addEventListener("keydown", ev => {
 
             case ".":
                 ev.preventDefault();
-                if(operIsThere() || bar.value === "")
+                if(operIsThere(true) || bar.value === "")
                     type("0.", 2);
-                else
+                else if (!operIsThere())
                     superType(".");
                 break;
 
@@ -2079,12 +2286,12 @@ bar.addEventListener("keydown", ev => {
 
 function neg() {
     if(!isNaN(bar.value.replace('⁻', '-'))) {
-        bar.value = bar.value[0] === '⁻' ? bar.value.slice(1) : '⁻' + bar.value;
+        barvalue(bar.value[0] === '⁻' ? bar.value.slice(1) : '⁻' + bar.value);
     } else {
         console.log('sup', bar.value[bar.selectionStart - 1]);
         if(bar.value[bar.selectionStart - 1] !== '⁻') {
             const ix = bar.selectionStart + 1;
-            bar.value = brackForClick(bar.selectionStart - 1, bar.value, "⁻");
+            barvalue(brackForClick(bar.selectionStart - 1, bar.value, "⁻"));
             bar.setSelectionRange(ix, ix);
         }
     }
@@ -2107,11 +2314,17 @@ function blinkToggle(remove, adder, visibility, aniPlayState) {
     cursor.style.animationPlayState = aniPlayState;
 }
 
-function blinker() {
+function blinkMain() {
     const cursorP = ["forCursorFadeIn", "forCursorFadeOut"];
     if(!blinkingCursor) blinkToggle(cursorP[1], cursorP[0], "hidden", "paused");
     else blinkToggle(cursorP[0], cursorP[1], "visible", "initial");
+}
+
+function blinker() {
     blinkingCursor = !blinkingCursor;
+    saveState.caret = !saveState.caret;
+    blinkMain();
+    USS();
 }
 
 document.getElementById("bcContainer").addEventListener("click", blinker);
@@ -2141,21 +2354,23 @@ function proxyVarsFunc() {
     proxEOBJ.vars = `V${Object.keys(vnl).sort().map(e => `<span class="hoverValue"><sub>${e}</sub></span>`).join('')}`
 }
 
+function setvarTemplate(name, val) {
+    changeVar(name, val);
+    const newvar = document.createElement("button");
+    newvar.classList.add('chvar', 'val');
+    newvar.dataset.val = 'V' + name;
+    newvar.textContent = name;
+    newvar.addEventListener("click", () => setValue(newvar));
+    flexbut.appendChild(newvar);
+}
+
 function setvarF() {
     const vnv = varname.value;
     const vvv = varval.value;
 
     console.log(vnv, vnl, 'vnvvnl');
-    if(vnv in vnl) vnl[vnv] = vvv;
-    else {
-        vnl[vnv] = vvv;
-        const newvar = document.createElement("button");
-        newvar.classList.add('chvar', 'val');
-        newvar.dataset.val = 'V' + vnv;
-        newvar.textContent = vnv;
-        newvar.addEventListener("click", () => setValue(newvar));
-        flexbut.appendChild(newvar);
-    }
+    if(vnv in vnl) changeVar(vnv, vvv);
+    else setvarTemplate(vnv, vvv);
     varval.value = '';
     varname.value = '';
     varb1.removeEventListener("click", setvarF);
@@ -2169,7 +2384,7 @@ function setvarF() {
     const vnv = varname.value;
     flexbut.removeChild(flexbut.querySelector(`*[data-val="V${vnv}"]`));
 
-    delete vnl[vnv];
+    changeVar(vnv, '', true);
     if(!Object.keys(vnl).length) delete proxEOBJ.vars;
     else proxyVarsFunc();
 
@@ -2290,3 +2505,24 @@ dft.addEventListener('click',  () => {
     curTheme = themes.dark;
     loadTheme(themes.dark);
 });
+
+
+// initializing save state
+for(const [k, v] of Object.entries(saveState)) {
+    if(k === 'bar') barvalue(v);
+    else if (k === 'caret') {
+        console.log(k, v, 'karet value');
+        blinkingCursor = v;
+        blinkMain();
+    }
+    else if (k === 'cpos') bar.setSelectionRange(v, v);
+    else if (k === 'tcae') timesClickedAfterEvaluation = v;
+    else if (k === 'proxEOBJ') for(const [w, q] of Object.entries(saveState.proxEOBJ)) {
+        proxEOBJ[w] = q;
+        console.log(w, 'w');
+        proxFUNCS[w](q);
+    }   
+}
+eCount.textContent = lsE.length;
+decFS();
+// newplus.addEventListener("click", () => window.open('../themebuilder/tb.html', '_blank'));

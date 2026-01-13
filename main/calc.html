@@ -29,6 +29,7 @@
     <span id="toplinks">
         <a class="toplink" id="legendLink" target="_blank" href="../legend/keys.html">legend</a>
         <a class="toplink" id="themeLink">theme</a>
+        <span id="vtext">v2.5</span>
     </span>
     <div id="themes" class="dnone">
         <div id="defaultT" class="theme">
@@ -58,12 +59,10 @@
         </div> -->
     </div>
     <span id="copyCont">
-        <img src="../copy.png" alt="copy" id="copy" width="30" height="30"><br>
-        <span>Bar was successfully copied</span>
+        <img src="../copy.png" alt="copy" id="copy" width="30" height="30">
     </span> 
     <span id="pasteCont">
-        <img src="../paste.png" alt="paste" id="paste" width="30" height="30"><br>
-        <span>Expression was pasted successfully</span>
+        <img src="../paste.png" alt="paste" id="paste" width="30" height="30">
     </span>
     <div id="extra"></div>
     <button class="arrow al"><i id="leftarrow"></i></button>
@@ -87,7 +86,12 @@
             <br>
             <button data-valIx="1" data-val="0" class="numbers val" id="zero">0</button>
 
-            <button data-valIx="3" data-val="Ans" id="ans" class="ans val holding">Ans</button>
+            <button data-valIx="3" data-val="Ans" id="ans" class="ans val holding">
+                <span>
+                    <span>Ans</span>
+                    <span id="entryCount"></span>
+                </span>
+            </button>
 
             <div id="dotneg">
                 <button data-valIx="1" data-val="." id="bottom" class="dot operat basic val">.</button>
