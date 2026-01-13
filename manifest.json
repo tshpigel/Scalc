@@ -1,8 +1,11 @@
 {
     "manifest_version": 3,
     "name": "Scalc+",
-    "version": "2.0",
+    "version": "2.5",
     "description": "An easy to use scientific calculator with extra functions",
+    "permissions": [
+        "clipboardRead"
+    ],
     "content_security_policy": {
         "extension_pages": "script-src 'self'; object-src 'self'"
     },
@@ -11,7 +14,6 @@
     },
     "action": {
         "default_icon": "scr.png",
-        "default_popup": "main/calc.html"
-    },
-    "permissions": ["activeTab", "clipboardRead"]
+        "default_popup": "calc/calc.html"
+    }
 }
