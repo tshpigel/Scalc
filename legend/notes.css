@@ -34,11 +34,13 @@ table {
     background: #d1ccc0;
 } tr:nth-child(odd) {
     background: #f1f2f6;
-} td {
+} td, th {
     padding: 1em;
     text-align: left;
     font-size: 14px;
     text-align: center;
+} tr > td:nth-child(1) {
+    font-weight: italic;
 }
 
 #iconAttr {

@@ -52,8 +52,8 @@
         </tr>
         <tr>
             <td><button class="brac">()</button></td>
-            <td>(</td>
-            <td>Prints a bracket pair with the cursor position between them.</td>
+            <td>( )</td>
+            <td>Prints a bracket pair with the cursor position between them. It is possible to type ')' when there are more open than closed parentheses, but the button only prints a bracket pair.</td>
         </tr>
         <tr>
             <td><button class="del">DEL</button></td>
@@ -167,9 +167,14 @@
             <td>Toggles the evaluation precision. Holding down the 'exact' button for 1 second will give a popup to control how many decimal places to round to (between 1 and 9).</td>
         </tr>
         <tr>
-            <td><button class="ans holding">Ans</button></td>
+            <td><button class="ans holding">
+                <span>
+                    <span>Ans</span>
+                    <span id="entryCount">n</span>
+                </span>
+            </button></td>
             <td>a</td>
-            <td>References the last value calculated as a variable. Hold down for 1 second to manage data entry history.</td>
+            <td>References the last value calculated as a variable. Hold down for 1 second to manage data entry history. The current number of entries is shown in place of 'n'.</td>
         </tr>
         <tr>
             <td><div id="bcContainer"><div id="blinkingCursor"></div></div></td>

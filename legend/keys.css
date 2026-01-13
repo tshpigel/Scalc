@@ -228,3 +228,15 @@ button:not(#next) {
 .thing {
     color: #369627;
 }
+
+.ans > span {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#entryCount {
+    font-size: 8px;
+    opacity: 0.8;
+    font-weight: normal;
+}
