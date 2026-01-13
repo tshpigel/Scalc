@@ -72,6 +72,7 @@ function load(b) {
 load();
 
 const find = document.querySelector("#find");
+const shfil = document.querySelector("#shfil");
 
 const hashMin = document.querySelector("#hmin");
 const hashMax = document.querySelector("#hmax");
@@ -95,25 +96,32 @@ find.addEventListener("click", () => {
         }
 
     else {
-        e.textContent = "";
-        document.querySelectorAll("tr").forEach(e => e.classList.remove('filt'));
-        const entry = entrReg.value ? new RegExp(entrReg.value) : entrLit.value;
-        const value = valuReg.value ? new RegExp(valuReg.value) : valuLit.value;
-        
-        for(let i = +(hashMin.value ? hashMin.value : 1); i <= +(hashMax.value ? hashMax.value : rows.length); i++) {
-            const tds = rows[i - 1].querySelectorAll("td:not(.id):not(td:has(i))");
-            const eb = (entry.source ? entry.test(tds[0].textContent) : tds[0].textContent === entry) || entry.length === 0;
-            const vb = (value.source ? value.test(tds[1].textContent) : tds[1].textContent === value) || value.length === 0;
-            const dmn = dateMin.value ? Date.parse(dateMin.value) : 0;
-            const dmx = dateMax.value ? Date.parse(dateMax.value) : Infinity;
-            const d = tds[2].textContent.split(/[/\s]/);
-            const f = e => e.length === 1 ? '0' + e : e;
-            const UNIX = Date.parse(`${d[2]}-${f(d[1])}-${f(d[0])}T${d[3]}`);
-            const db = dmx >= UNIX && UNIX >= dmn;
+        try {
+            e.textContent = "";
+            document.querySelectorAll("tr").forEach(e => e.classList.remove('filt'));
+            const entry = entrReg.value ? new RegExp(entrReg.value) : entrLit.value;
+            const value = valuReg.value ? new RegExp(valuReg.value) : valuLit.value;
+            
+            for(let i = +(hashMin.value ? hashMin.value : 1); i <= +(hashMax.value ? hashMax.value : rows.length); i++) {
+                const tds = rows[i - 1].querySelectorAll("td:not(.id):not(td:has(i))");
+                const eb = (entry.source ? entry.test(tds[0].textContent) : tds[0].textContent === entry) || entry.length === 0;
+                const vb = (value.source ? value.test(tds[1].textContent) : tds[1].textContent === value) || value.length === 0;
+                const dmn = dateMin.value ? Date.parse(dateMin.value) : 0;
+                const dmx = dateMax.value ? Date.parse(dateMax.value) : Infinity;
+                const d = tds[2].textContent.split(/[/\s]/);
+                const f = e => e.length === 1 ? '0' + e : e;
+                const UNIX = Date.parse(`${d[2]}-${f(d[1])}-${f(d[0])}T${d[3]}`);
+                const db = dmx >= UNIX && UNIX >= dmn;
 
-            if(eb && vb && db) {
-                rows[i - 1].classList.add('filt');
-            } else rows[i - 1].classList.remove('filt');
+                if(eb && vb && db) {
+                    rows[i - 1].classList.add('filt');
+                } else rows[i - 1].classList.remove('filt');
+            }
+
+            shfil.checked = true;
+            filterFilter();
+        } catch(err) {
+            e.textContent = "Invalid regular expression";
         }
     }
 });
@@ -148,6 +156,24 @@ smode.addEventListener("change", e => {
                 i.style.display = 'unset';
                 e.removeEventListener('click', select);
             }
+        });
+    }
+});
+
+function filterFilter() {
+    document.querySelectorAll("tr:not(#names)").forEach(e => {
+        if(!e.classList.contains('filt')) {
+            e.classList.add('dnone');
+        }
+    });
+}
+
+shfil.addEventListener("change", e => {
+    if(e.target.checked) {
+        filterFilter();
+    } else {
+        document.querySelectorAll("tr").forEach(e => {
+            e.classList.remove('dnone');
         });
     }
 });
