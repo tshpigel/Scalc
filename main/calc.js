@@ -174,7 +174,11 @@ let sndactive = false;
 let sinstr = 'SinReal', cosstr = 'CosReal', tanstr = 'TanReal', 
     asinstr = 'aSinReal', acosstr = 'aCosReal', atanstr = 'aTanReal';
 
-const bar = document.querySelector("#bar");
+const bar = document.querySelector('#bar');
+const cac = document.querySelector('#cac');
+const rcc = document.querySelector('#resetCalcCont');
+const rc = document.querySelector('#rc');
+const ep = document.querySelector('#ep');
 const extra = document.querySelector('#extra');
 const ansE = document.querySelector("#ans");
 const del = document.querySelector("#del");
@@ -226,6 +230,8 @@ const flexbut = document.querySelector("#flexbut");
 const themeLink = document.querySelector("#themeLink");
 const themeUI = document.querySelector("#themes");
 const newplus = document.querySelector("#newplus");
+const vtext = document.querySelector("#vtext");
+const patch = document.querySelector("#patch");
 
 // live state of the calculator (to save if extension is closed)
 if(!localStorage.saveState) localStorage.saveState = JSON.stringify({bar:'',proxEOBJ:{},caret:false,tcae:0,cpos:0});
@@ -382,7 +388,7 @@ const pieE = {
         fnc : true
     }
 }; const logE = {
-    conversion : 'loga($2)',
+    conversion : 'lgf', // cannot have 'log' otherwise infinite loop
     variable : "l",
     block : "log(",
     fnc : true,
@@ -495,7 +501,7 @@ function loadTheme(thm) {
     document.querySelector('#body').style.background = thm.body;
     document.querySelector('#body').style.border = `3px solid ${thm.body}`;
     document.querySelector('#body').style.boxShadow = `15px 15px 0 ${thm.bodyshadow}`;
-    document.querySelector('#vtext').style.color = thm.textcol;
+    vtext.style.color = thm.textcol;
     extra.style.color = thm.barnotes;
     extss += `.holding {
         border: 2px solid ${thm.holdbtnborder};
@@ -678,7 +684,7 @@ function CEVAL(str, op = false, exact = false) {
         "sqr": [Math.sqrt, 1],
         "ansf": [ansLocEval, 1],
         "pow": [Math.pow, 2],
-        "loga": [LOG, 1],
+        "lgf": [LOG, 1],
         "laun": [LN, 1],
         "etxp": [Math.exp, 1],
         "pe": [perms, 2],
@@ -704,6 +710,7 @@ function CEVAL(str, op = false, exact = false) {
                     console.log(args);
                     //const args2 = args.filter(Boolean);
                     console.log(args, 'args log');
+                    console.log(funcs, p1, funcs[p1], 'funcs[p1]');
                     if(args.length < funcs[p1][1]) {
                         console.log('args error', p2);
                         if(!op) ERR("Invalid Expression");
@@ -858,7 +865,7 @@ function fac(num) {
         if(type === 'arithmetic') {
             return (+n / 2) * (2 * +a + +dor * (+n - 1));
         } else if (type === 'geometric') {
-            return (+a * (1 - (+dor) ** +n)) / (1 - +dor);
+            return +dor === 1 ? +a * +n : (+a * (1 - (+dor) ** +n)) / (1 - +dor);
         }
     }
 } function nth(a, dor, n, type) {
@@ -1108,18 +1115,20 @@ function fixChoice() {
     }
 }
 
+function resetExcRnd() {
+    exc_rnd.classList.remove("holding");
+    exc_rnd.textContent = "ROUND";
+    exact = false;
+    fix.value = 2;
+    fixed = 2;
+}
+
 function excRnd() {
     exc_rnd.classList.toggle("holding");
     if(exact) {
         exc_rnd.textContent = "ROUND";
-        // if(bar.value === ans && decCount(ans) > fixed) {
-        //     bar.value = RNP(NP(bar.value).toFixed(fixed));
-        // }
         delete proxEOBJ.exc_rnd;
     } else {
-        // if(bar.value === ans && decCount(ans) > fixed) {
-        //     bar.value = RNP(NP(bar.value).toFixed(fixed));
-        // }
         exc_rnd.textContent = "EXACT";
         proxEOBJ.exc_rnd = "FIX"+fixed;
     }
@@ -1255,23 +1264,21 @@ function mainConfigTemplate(stv, drv, addProxy = true) {
     const fmscsv = fullMSCS(mscsv);
     const evalRgx = /\d+(\.\d+)?(E⁻?\d+)?/;
     if(JSON.stringify(mutableSeriesConfigSettings) !== JSON.stringify(defaultSeriesConfigSettings)) {
-        const seqVal1 = Number(mscsdr.replace(ansRgx, "$1"));
-        const seqVal2 = Number(mscsv.replace(ansRgx, "$1"));
+        const seqVal1 = Number(mscsv.replace(ansRgx, "$1"));
+        const seqVal2 = Number(mscsdr.replace(ansRgx, "$1"));
         const seqEval = localStorage.entryVals.split(',');
         const seqIx1 = Number(seqEval[seqVal1 - 1]);
         const seqIx2 = Number(seqEval[seqVal2 - 1]);
         const astv = ansRgx.test(stv);
         const adrv = ansRgx.test(drv);
-        const estv = evalRgx.test(stv) && !isNaN(seqIx1);
-        const edrv = evalRgx.test(drv) && !isNaN(seqIx2);
-        console.log(seqIx1, seqIx2, 'seqixs');
+        const estv = evalRgx.test(seqIx1) || !isNaN(seqIx1);
+        const edrv = evalRgx.test(seqIx2) || !isNaN(seqIx2);
+        console.log(seqIx1, seqEval[seqVal1 - 1], seqIx2, seqEval[seqVal2 - 1], 'seqixs');
         console.log(seqVal1, seqVal2, 'seq values');
-        if((!astv && !adrv) || (!isNaN(seqVal1) && seqVal1 >= 1 && seqVal1 < seqEval.length) && 
-        (!isNaN(seqVal2) && seqVal2 >= 1 && seqVal2 < seqEval.length) && 
-        [seqVal1, seqVal2].every(Number.isInteger) && (astv ? estv : true) && (adrv ? edrv : true)) {
+        if((astv ? estv : true) && (adrv ? edrv : true)) {
             console.log(astv, adrv, estv, edrv, 'config stage A/X');
-            mutableSeriesConfigSettings.difference_ratio = adrv ? seqIx1 : +mscsdr;
-            mutableSeriesConfigSettings.start = astv ? seqIx2 : +mscsv;
+            mutableSeriesConfigSettings.start = astv ? seqIx1 : +mscsv;
+            mutableSeriesConfigSettings.difference_ratio = adrv ? seqIx2 : +mscsdr;
             baseSub.textContent = astv || adrv ? "A" : "X";
             baseSub.style.color = curTheme.logserbase[astv || adrv ? "answer" : "constant"]; 
             baseSubPopup.textContent = ansRgx.test(stv) ? seqIx1 : +mscsdr;
@@ -1309,6 +1316,24 @@ function arithTemplate() {
     diffh2.textContent = "Ratio";
 }
 
+function resetSeq() {
+    mutableSeriesConfigSettings = { ...defaultSeriesConfigSettings };
+    geo.style.opacity = 0.5;
+    ari.style.opacity = 1;
+    stval.value = 1;
+    serDiff.value = 1;
+    reset.style.visibility = "hidden";
+    baseSub.textContent = 'x';
+}
+
+function resetLog() {
+    logBase = 10;
+    logInput.value = 10;
+    baseSubLog.textContent = "10";
+    baseSubLog.style.color = curTheme.textcol;
+    logErr = false;
+}
+
 function config() {
     const reference = SIP.onclick;
     if(!sndactive) return;
@@ -1335,13 +1360,7 @@ function config() {
             });
 
             reset.addEventListener("click", () => {
-                mutableSeriesConfigSettings = { ...defaultSeriesConfigSettings };
-                geo.style.opacity = 0.5;
-                ari.style.opacity = 1;
-                stval.value = 1;
-                serDiff.value = 1;
-                reset.style.visibility = "hidden";
-                baseSub.textContent = 'x'
+                resetSeq();
                 baseSub.style.color = curTheme.specfncs.sndmode.up[0];
             });
         }, 1000);
@@ -1378,7 +1397,11 @@ function ansLogTemplate(liv) { // parameter is log input value
     const indexedVal = Number(evals[baseVal - 1]);
     const evalRgx = /\d+(\.\d+)?(E⁻?\d+)?/;
     let baseSubPopup = document.getElementById('baseSubPopup');
-    if(Number.isInteger(baseVal) && baseVal >= 1 && baseVal <= evals.length && !evalRgx.test(indexedVal)) {
+
+    console.log('indexed val', indexedVal, !evalRgx.test(indexedVal) && !Number.isNaN(indexedVal));
+
+    if(Number.isInteger(baseVal) && baseVal >= 1 && baseVal <= evals.length 
+        && (evalRgx.test(indexedVal) || !Number.isNaN(indexedVal))) {
         logBase = indexedVal;
         baseSubLog.textContent = "A";
         baseSubLog.style.color = curTheme.logserbase.answer;
@@ -1417,7 +1440,6 @@ function logBaseHold() {
         }, 1000);
         saveD.addEventListener('click', () => {
             if(logInput.value.length > 0) {
-                
                 if(logInput.value !== "10" && logInput.value.includes("(")) {
                     proxEOBJ.log = "LOG"+`<sub>${logInput.value}</sub>`;
                 } else {
@@ -1432,9 +1454,7 @@ function logBaseHold() {
                     proxEOBJ.log = `LOG<sub>${logInput.value}</sub>`;
                     nonAnsLogTemplate(logInput.value);
                 } else {
-                    logBase = 10;
-                    baseSubLog.style.color = curTheme.textcol;
-                    logErr = false;
+                    resetLog();
                 }
                 // document.querySelectorAll(".hoverValue").forEach(q => qsaHover(q, /Ans #\d+ --> \d+(\.\d+)?\s\|\s/));
                 LogE.onclick = reference;
@@ -1520,7 +1540,47 @@ function setValue(v) {
 document.querySelectorAll(".val")
     .forEach(n => n.addEventListener("click", () => setValue(n)));
 
-document.getElementById('cac').addEventListener("click", () => {
+function resetCalc() {
+    const reference = cac.onclick;
+    cac.onclick = null;
+    clearTimeout(this.downTimer);
+    this.downTimer = setTimeout(() => {
+        rcc.classList.remove('dnone');
+        cac.classList.remove('holding');
+    }, 1000);
+    ep.addEventListener("click", () => {
+        rcc.classList.add('dnone');
+        cac.classList.add('holding');
+        cac.onclick = reference;
+    });
+    rc.addEventListener("click", () => {
+        Object.keys(proxEOBJ).forEach(k => delete proxEOBJ[k]);
+        localStorage.varVals = "{}";
+
+        USS();
+
+        barvalue('');
+        extra.innerHTML = '';
+
+        rcc.classList.add('dnone');
+        cac.classList.add('holding');
+        cac.onclick = reference;
+
+        // reset visuals
+        resetLog();
+        resetSeq();
+        baseSub.style.color = curTheme.specfncs.normal.up[0];
+        resetExcRnd();
+        resetDegRad();
+
+        timesActivated = -1;
+        sndAction();
+
+        loadTheme(curTheme);
+    });
+}
+
+cac.addEventListener("click", () => {
     if(!errMode) {
         barvalue("");
         timesClickedAfterEvaluation = 0;
@@ -1530,6 +1590,25 @@ document.getElementById('cac').addEventListener("click", () => {
         ansFuncHover();
     } else unError();
 });
+
+cac.addEventListener("mousedown", resetCalc);
+cac.addEventListener("mouseup", resetDownTimer);
+
+function trigConversions() {
+    sin.conversion = !deg ? "SinFake" : "SinReal";
+    cos.conversion = !deg ? "CosFake" : "CosReal";
+    tan.conversion = !deg ? "TanFake" : "TanReal";
+
+    sin.snd.conversion = !deg ? "aSinFake" : "aSinReal";
+    cos.snd.conversion = !deg ? "aCosFake" : "aCosReal";
+    tan.snd.conversion = !deg ? "aTanFake" : "aTanReal";
+}
+
+function resetDegRad() {
+    deg = true;
+    deg_rad.textContent = "RAD";
+    trigConversions();
+}
 
 function degRad() {
     if(deg) {
@@ -1541,13 +1620,7 @@ function degRad() {
         deg_rad.textContent = "RAD";
         delete proxEOBJ.rad;
     }
-    sin.conversion = !deg ? "SinFake" : "SinReal";
-    cos.conversion = !deg ? "CosFake" : "CosReal";
-    tan.conversion = !deg ? "TanFake" : "TanReal";
-
-    sin.snd.conversion = !deg ? "aSinFake" : "aSinReal";
-    cos.snd.conversion = !deg ? "aCosFake" : "aCosReal";
-    tan.snd.conversion = !deg ? "aTanFake" : "aTanReal";
+    trigConversions();
 } 
 deg_rad.addEventListener("click", degRad);
 
@@ -1578,7 +1651,7 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
         [rgxVal + "C" + rgxVal] : pca, 
         [rgxVal + "P" + rgxVal] : pcb,
 
-        ["log(" + rgxVal + ")"] : lea,
+        "log" : lea,
         ["E" + rgxVal] : leb,
 
         "π" : pea,
@@ -1695,6 +1768,7 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
         for(const k in sndOper) {
             const val = sndOper[k];
             const rgx = new RegExp(k, 'g');
+            console.log(str, rgx, 'str + rgx in main conversion');
             let initTest = rgx.test(str);
             if(initTest) {
                 if(val?.fnc) while(str.search(rgx) > -1) 
@@ -2218,7 +2292,7 @@ bar.addEventListener("keydown", ev => {
                 if(operIsThere(true) || bar.value === "")
                     type("0.", 2);
                 else if (!operIsThere())
-                    superType(".");
+                    type(".", 1);
                 break;
 
             case "L":
@@ -2285,6 +2359,8 @@ bar.addEventListener("keydown", ev => {
 }); 
 
 function neg() {
+    timesClickedAfterEvaluation++;
+    saveState.tcae++;
     if(!isNaN(bar.value.replace('⁻', '-'))) {
         barvalue(bar.value[0] === '⁻' ? bar.value.slice(1) : '⁻' + bar.value);
     } else {
@@ -2477,6 +2553,8 @@ varname.addEventListener("keydown", ev => {
 document.getElementById("var").addEventListener("click", () => {
     dvar.classList.toggle('dnone');
     dvar.classList.toggle('dbox');
+    if (dvar.classList.contains('dbox'))
+        varname.focus();
     VRev(tog);
     tog = !tog;
 });
@@ -2506,23 +2584,32 @@ dft.addEventListener('click',  () => {
     loadTheme(themes.dark);
 });
 
+vtext.addEventListener("click", () => {
+    patch.classList.toggle("dnone");
+});
+
+function loadSaveState() {
+    for(const [k, v] of Object.entries(saveState)) {
+        if(k === 'bar') barvalue(v);
+        else if (k === 'caret') {
+            console.log(k, v, 'karet value');
+            blinkingCursor = v;
+            blinkMain();
+        }
+        else if (k === 'cpos') bar.setSelectionRange(v, v);
+        else if (k === 'tcae') timesClickedAfterEvaluation = v;
+        else if (k === 'proxEOBJ') for(const [w, q] of Object.entries(saveState.proxEOBJ)) {
+            proxEOBJ[w] = q;
+            console.log(w, 'w');
+            proxFUNCS[w](q);
+        }   
+    }
+    eCount.textContent = lsE.length;
+    decFS();
+}
+
 
 // initializing save state
-for(const [k, v] of Object.entries(saveState)) {
-    if(k === 'bar') barvalue(v);
-    else if (k === 'caret') {
-        console.log(k, v, 'karet value');
-        blinkingCursor = v;
-        blinkMain();
-    }
-    else if (k === 'cpos') bar.setSelectionRange(v, v);
-    else if (k === 'tcae') timesClickedAfterEvaluation = v;
-    else if (k === 'proxEOBJ') for(const [w, q] of Object.entries(saveState.proxEOBJ)) {
-        proxEOBJ[w] = q;
-        console.log(w, 'w');
-        proxFUNCS[w](q);
-    }   
-}
-eCount.textContent = lsE.length;
-decFS();
+loadSaveState();
+
 // newplus.addEventListener("click", () => window.open('../themebuilder/tb.html', '_blank'));

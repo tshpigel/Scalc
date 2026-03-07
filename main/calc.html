@@ -29,7 +29,33 @@
     <span id="toplinks">
         <a class="toplink" id="legendLink" target="_blank" href="../legend/keys.html">legend</a>
         <a class="toplink" id="themeLink">theme</a>
-        <span id="vtext">v2.5</span>
+        <span id="vtext">v2.6</span>
+        <div id="patch" class="dnone">
+            <span class="title">2.6</span>
+            <hr>
+            <span class="list">- Fixed log()</span><br>
+            <span class="list">- Added full clear</span><br>
+            <span class="list">- General bug fixes</span><br><br>
+
+            <span class="title">2.5</span>
+            <hr>
+            <span class="list">- Added save state</span><br>
+            <span class="list">- Added "Only Show Filtered" in answer entries page</span><br>
+            <span class="list">- Added Ans(n) functionality in bar</span><br>
+            <span class="list">- Ans button shows number of entries</span><br>
+            <span class="list">- ")" can be typed</span><br>
+            <span class="list">- General bug fixes</span><br><br>
+
+            <span class="title">2.0</span>
+            <hr>
+            <span class="list">- Added themes</span><br>
+            <span class="list">- Added variables</span><br>
+            <span class="list">- Added scientific notation</span><br>
+            <span class="list">- Added copy and paste buttons</span><br>
+            <span class="list">- Added holding down functionality</span><br>
+            <span class="list">- Fixed entry history page</span><br>
+            <span class="list">- Bug fixes</span>
+        </div>
     </span>
     <div id="themes" class="dnone">
         <div id="defaultT" class="theme">
@@ -160,7 +186,7 @@
                 </span>
                 <button data-valIx="1" data-val="()" class="val" id="brack">( )</button>
                 <button id="del">DEL</button>
-                <button id="cac">AC</button>
+                <button id="cac" class="holding">AC</button>
             </div>
         </div>
     </div>
@@ -193,6 +219,11 @@
         <input id="baseChoice" type="text" value="10">
         <button id="saveD">Save</button>
         <button id="resetD">Reset</button>
+    </div>
+
+    <div id="resetCalcCont" class="dnone">
+        <button id="rc">Full Clear</button>
+        <button id="ep">Exit</button>
     </div>
     <script src='calc.js'></script>
 </body>
