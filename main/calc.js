@@ -6,18 +6,20 @@ const lss = new Blob(Object.values(localStorage)).size;
 const extraObj = {};
 
 const allowedPlusChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'A', 'Backspace', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-const lsEA = (localStorage.entries) ? localStorage.entries.split(',') : [];
 const LSF = prop => (localStorage[prop] || '').split(',').filter(e => e.length > 0);
 let lsEV = LSF("entryVals");
 let lsE = LSF("entries");
 let lsD = LSF("date");
-const LS = [lsEV, lsE, lsD];
-const init = LS.map(e => e.length).sort()[0];
-for(let L of LS) L = L.slice(0, init);
+// const LS = [lsEV, lsE, lsD];
+// const init = LS.map(e => e.length).sort()[0];
+// for(let L of LS) L = L.slice(0, init);
+
 localStorage.entryVals = lsEV.join(',') + ',';
 localStorage.entries = lsE.join(',') + ',';
 localStorage.date = lsD.join(',') + ',';
 if(!localStorage.varVals) localStorage.varVals = "{}";
+if(!localStorage.customThemes) localStorage.customThemes = "{}";
+
 const ansRgx = /Ans\((\d+)\)/i;
 const digKeyCodeArr = Array.from({ length: 9 }, (_, i) => i + 48);
 const vnl = JSON.parse(localStorage.varVals); // variable name list
@@ -56,7 +58,7 @@ const themes = {
                 up: ["#000", 0.6]
             },
             sndmode: {
-                base: ["686de0#4834d4", "4b7bec#3867d6", "#000"],
+                // base: ["686de0#4834d4", "4b7bec#3867d6", "#000"],
                 up: ["#b8e994", 1]
             }
         }
@@ -94,7 +96,7 @@ const themes = {
                 up: ["#000", 0.6]
             },
             sndmode: {
-                base: ["f3cfe7#dfb5d1", "d293bd#cb76af", "#000"],
+                // base: ["f3cfe7#dfb5d1", "d293bd#cb76af", "#000"],
                 up: ["#192b4a", 1]
             }
         }
@@ -132,16 +134,15 @@ const themes = {
                 up: ["#fff", 0.4]
             },
             sndmode: {
-                base: ["f3cfe7#dfb5d1", "d293bd#cb76af", "#fff"],
+                // base: ["222123#3b393c", "2e2837#433c4e", "#fff"],
                 up: ["#fc9a5e", 1]
             }
         }
-    }
+    },
+
+    ...JSON.parse(localStorage.customThemes)
 };
 
-localStorage.scalcTheme = localStorage.scalcTheme ?? 'default';
-TBT(localStorage.scalcTheme);
-let curTheme = themes[localStorage.scalcTheme];
 const defaultSeriesConfigSettings = {
     start : "1",
     type : 'arithmetic',
@@ -212,12 +213,12 @@ const ari = document.querySelector('#ari');
 const geo = document.querySelector('#geo');
 const scc = document.querySelector('#serConfigCont');
 const diffh2 = document.querySelector('#diffh2');
-const baseSub = document.querySelector("#baseSubSer");
-const baseSubPopup = document.querySelector('#baseSubPopup');
+const baseSubSer = document.querySelector("#baseSubSer");
+// const baseSubPopup = document.querySelector('#baseSubPopup');
 const resetD = document.querySelector('#resetD');
 const logInput = document.querySelector('#baseChoice');
 const lbc = document.querySelector("#logBaseCont");
-const baseSubLog = document.querySelector("#baseSub");
+const baseSubLog = document.querySelector("#baseSubLog");
 const bnenrne = document.querySelectorAll("button:not(#entries):not(#resetC):not(#exit)");
 const bnsnsnr = document.querySelectorAll("button:not(.ser):not(#save):not(#reset)");
 const arrows = [document.querySelector(".ar"), document.querySelector(".al")];
@@ -233,10 +234,23 @@ const newplus = document.querySelector("#newplus");
 const vtext = document.querySelector("#vtext");
 const patch = document.querySelector("#patch");
 
+const eltr = []; // event listeners to remove
+function eltrAction() {
+    for(const evpair of eltr) {
+        evpair[0].removeEventListener("click", evpair[1]);
+    }
+}
+
 // live state of the calculator (to save if extension is closed)
 if(!localStorage.saveState) localStorage.saveState = JSON.stringify({bar:'',proxEOBJ:{},caret:false,tcae:0,cpos:0});
 const saveState = JSON.parse(localStorage.saveState);
 console.log(saveState, 'save state');
+
+// setting up themes
+loadCustomThemes();
+localStorage.scalcTheme = localStorage.scalcTheme ?? 'default';
+TBT(localStorage.scalcTheme);
+let curTheme = themes[localStorage.scalcTheme];
 
 const proxEOBJ = new Proxy(extraObj, {
     deleteProperty: (t, p) => {
@@ -289,6 +303,22 @@ const proxFUNCS = {
         console.log(S, V, R, mutableSeriesConfigSettings, 'seq matching');
     }
 }
+
+const pasteReplacements = {
+    ' ': '',
+    '*': '×',
+    '/': '÷',
+    'sqrt': '√',
+    'root': '√',
+    'pi': 'π',
+    '[': '(',
+    ']': ')',
+    'percent': '%',
+    'sin-1': 'arcsin',
+    'cos-1': 'arccos',
+    'tan-1': 'arctan',
+    'ans': 'Ans'
+};
 
 const add = {
     conversion : "+",
@@ -351,7 +381,7 @@ const pieE = {
     conversion : "co($1,$2)",
     fnc : true,
     snd : {
-        conversion : "pe($1,$2)",
+        conversion : "pr($1,$2)",
         fnc : true
     } 
 }; const sin = {
@@ -462,8 +492,9 @@ function decFS() { // decrease font size
 }
 
 function TBT(theme) { // theme border toggle
-    document.querySelector(`#${theme}T div`).classList.toggle('seltheme');
-    document.querySelector(`#${theme}T span`).classList.toggle('boldtheme');
+    // console.log(theme, theme.replace(/\s/g, ''));
+    document.querySelector(`div[data-actualname="${theme}"] div`).classList.toggle('seltheme');
+    document.querySelector(`div[data-actualname="${theme}"] span`).classList.toggle('boldtheme');
 }
 
 function loadTheme(thm) {
@@ -502,6 +533,7 @@ function loadTheme(thm) {
     document.querySelector('#body').style.border = `3px solid ${thm.body}`;
     document.querySelector('#body').style.boxShadow = `15px 15px 0 ${thm.bodyshadow}`;
     vtext.style.color = thm.textcol;
+    console.log('barnotes', thm.barnotes);
     extra.style.color = thm.barnotes;
     extss += `.holding {
         border: 2px solid ${thm.holdbtnborder};
@@ -520,7 +552,6 @@ function loadTheme(thm) {
     }\n`;
 
     bcbsh('.arrow', thm.arrows);
-    // document.querySelectorAll(".arrow i").forEach(a => a.style.border = `solid ${thm.arrows[1]}`);
     extss += `.arrow>* {
         border: solid ${thm.arrows[1]};
     }\n`;
@@ -532,16 +563,16 @@ function loadTheme(thm) {
         e.style.opacity = opac;
     });
 
-    const bst = baseSub.textContent;
+    const bst = baseSubSer.textContent;
     const bslt = baseSubLog.textContent;
     if(proxEOBJ.sequence || proxEOBJ.log) {
         if(proxEOBJ.sequence)
-            baseSub.style.color = thm.logserbase[bst === 'A' ? "answer" : (bst === 'E' ? "error" : "constant")];
+            baseSubSer.style.color = thm.logserbase[bst === 'A' ? "answer" : (bst === 'E' ? "error" : "constant")];
         if(proxEOBJ.log)
             baseSubLog.style.color = thm.logserbase[bslt === 'A' ? "answer" : (bslt === 'E' ? "error" : "constant")];
     } else {
-        baseSub.style.color = thm.color;
-        baseSubLog.style.color = thm.color;
+        baseSubSer.style.color = thm.textcol;
+        baseSubLog.style.color = thm.textcol;
     }
     
 
@@ -555,20 +586,21 @@ function loadTheme(thm) {
     bcbsh('.operat', thm.opers);
     bcbsh('.specs', thm.specfncs.normal.base);
 
-    const sndcols = thm.specfncs.sndmode.base;
-    extss += `.sndcolor {
-        background: #${sndcols[0].slice(0, 6)};
-        box-shadow: 0 5px ${sndcols[0].slice(6)};
-        color: ${sndcols[2]};
-    } .sndcolor:hover {
-        background: #${sndcols[1].slice(0, 6)};
-        box-shadow: 0 5px ${sndcols[1].slice(6)};
-    }\n`;
+    themeUI.querySelectorAll(".theme").forEach(t => {
+        const tkey = themes[t.dataset.actualname];
+        console.log(tkey.num, 'tkey num');
+        extss += `#${t.id} div button:first-child:hover {
+            background-color: #${tkey.num[1].slice(0, 6)} !important;
+        } #${t.id} div button:last-child:hover {
+            background-color: #${tkey.opers[1].slice(0, 6)} !important;
+        }`
+    });
 
     const ss = document.createElement('style');
+    ss.classList.add('toreplace');
     ss.appendChild(document.createTextNode(extss));
 
-    const toReplace = document.querySelector('head style');
+    const toReplace = document.querySelector('head .toreplace');
     if(toReplace) document.querySelector('head').removeChild(toReplace);
     document.querySelector('head').appendChild(ss);
 }
@@ -646,11 +678,13 @@ function ansLoc(ix) {
 function ansLocEval(ix) {
     if(ix > LSF("entries").length) {
         ERR(`Ans #${ix} is out of bounds`);
+        bar.value = "EntryError";
         return 'EntryError';
     }
     const a = ansLoc(ix);
     if(a.includes("Error")) {
         ERR(`Ans #${ix} results in ${a}`);
+        bar.value = "EntryError";
         return 'EntryError';
     }
 
@@ -661,7 +695,7 @@ function CEVAL(str, op = false, exact = false) {
     if(count("(", str) !== count(")", str)) {
         if(!op) ERR("Invalid Bracketing");
         return "CalculationError";
-    }
+    } 
 
     const nReg = "(⁻?\\d+(?:\\.\\d+)?(?:e[+-]\\d+)?)";
 
@@ -687,7 +721,7 @@ function CEVAL(str, op = false, exact = false) {
         "lgf": [LOG, 1],
         "laun": [LN, 1],
         "etxp": [Math.exp, 1],
-        "pe": [perms, 2],
+        "pr": [perms, 2],
         "co": [combs, 2],
         "esn": [esn, 1]
     };
@@ -737,9 +771,22 @@ function CEVAL(str, op = false, exact = false) {
         }
         if(/^[)*/+\^-]|[(*/+\^-]$/.test(c)) throw Error();
 
+        // nested factorial and P+C fix
+        let fpci = 0;
+        while(new RegExp(`${nReg}!`).test(c) || new RegExp(`${nReg}[PC]${nReg}`).test(c)) {
+            if (++fpci > 1000) {
+                ERR("Invalid Expression");
+                return "CalculationError";
+            }
+
+            c = c.replace(new RegExp(`${nReg}!`), (_, p1) => RNP(String(fac(NP(p1)))));
+            c = c.replace(new RegExp(`${nReg}([PC])${nReg}`), (_, p1, p2, p3) => 
+                RNP(String(p2 === 'C' ? combs(NP(p1), NP(p3)) : perms(NP(p1), NP(p3)))));
+        }
+
         c = srepl('\\^', (_, p1, p2, p3) => String(NP(p1) ** NP(p3)));
         c = srepl('*/', (_, p1, p2, p3) => String(p2 === '*' ? NP(p1) * NP(p3) : (
-            +p3 === 0 ? 'ZeroDivisionError' : NP(p1) / NP(p3)
+            NP(p3) === 0 ? 'ZeroDivisionError' : NP(p1) / NP(p3)
         )));
         if(c.includes('ZeroDivisionError')) {
             if(!op) {
@@ -828,6 +875,7 @@ function decCount(num) {
 function getEntries() {
     const amountLeft = max - lss;
     let avg = 0;
+    const lsEA = (localStorage.entries) ? localStorage.entries.split(',') : [];
     lsEA.forEach(el => {
         avg += el.length;
     });
@@ -839,11 +887,10 @@ function getEntries() {
     } else eLeft.textContent = (entriesLeft <= 0 ? 0 : `~${formatKP(entriesLeft)}`) + " vacant entries";
     
 }
-getEntries();
 
 function brackForClick(ix, str, adder) {
     str = [...str];
-    str.splice(ix + 1, 0, adder).join('');
+    str.splice(ix + 1, 0, adder);
     return str.join('');
 }
 
@@ -1030,7 +1077,6 @@ function resetDownTimer() {
     clearTimeout(this.downTimer);
 }
 
-bar.focus();
 function input() {
     bar.focus();
 }
@@ -1047,27 +1093,33 @@ function ansEntry() {
 function ansEntries() {
     const reference = ansE.onclick;
     clearTimeout(this.downTimer);
-    this.downTimer = setTimeout(() => {
-        AEC.style.visibility = "visible";
-        ansEntry();
-        resetC.addEventListener("click", () => {
-            localStorage.removeItem("entries");
-            localStorage.removeItem("entryVals");
-            localStorage.removeItem("date");
-            eClear.style.opacity = 1;
-            fadeOut('eClear');
-            eCount.textContent = "0";
-            eLeft.textContent = "Max vacant entries";
-        });
-    }, 1000);
-    exit.addEventListener("click", () => {
+    function resetCEvent() {
+        localStorage.removeItem("entries");
+        localStorage.removeItem("entryVals");
+        localStorage.removeItem("date");
+        eClear.style.opacity = 1;
+        fadeOut('eClear');
+        eCount.textContent = "0";
+        eLeft.textContent = "Max vacant entries";
+    } function exitEvent() {
         ansE.onclick = reference;
         bar.disabled = false;
         bnenrne.forEach(e => {
             e.disabled = false;
         });
         AEC.style.visibility = "hidden";
-    });
+        eltrAction();
+    }
+
+    this.downTimer = setTimeout(() => {
+        getEntries();
+        AEC.style.visibility = "visible";
+        ansEntry();
+        resetC.addEventListener("click", resetCEvent);
+    }, 1000);
+
+    exit.addEventListener("click", exitEvent);
+    eltr.push([resetC, resetCEvent], [exit, exitEvent]);
 }
 ansE.addEventListener("mousedown", ansEntries);
 ansE.addEventListener("mouseup", resetDownTimer);
@@ -1082,37 +1134,40 @@ function FCev() {
 
 function fixChoice() {
     const reference = document.querySelectorAll('#exc_rnd');
+    function fixEvent(e) {
+        const ek = e.key.length === 1 ? e.key : '';
+        const m = +brackForClick(fix.selectionStart, fix.value, ek);
+        if(isNaN(m) || m < 1 || m > 9) e.preventDefault();
+        else resetB.style.visibility = fix.value + ek !== '2' ? "visible" : "hidden";
+    } function resetBEvent() {
+        fix.value = 2;
+        resetB.style.visibility = "hidden";
+    } function saveBEvent() {
+        if(fix.value >= 1 && fix.value <= 9) {
+            exc_rnd.onclick = reference;
+            bar.disabled = false;
+            bnsbnrb.forEach(el => {
+                el.disabled = false;
+            });
+            ercc.style.visibility = "hidden";
+            resetB.style.visibility = "hidden";
+            fixed = +fix.value;
+            proxEOBJ.exc_rnd = "FIX" + fixed;
+            eltrAction();
+        }
+    }
     if(!exact) return;
     else {
         clearTimeout(this.downTimer);
         this.downTimer = setTimeout(() => {
             ercc.style.visibility = "visible";
             FCev();
-            fix.addEventListener("keydown", e => {
-                const ek = e.key.length === 1 ? e.key : '';
-                const m = +brackForClick(fix.selectionStart, fix.value, ek);
-                if(isNaN(m) || m < 1 || m > 9) e.preventDefault();
-                else resetB.style.visibility = fix.value + ek !== '2' ? "visible" : "hidden";
-            });
-            resetB.addEventListener("click", () => {
-                fix.value = 2;
-                resetB.style.visibility = "hidden";
-            });
+            fix.addEventListener("keydown", fixEvent);
+            resetB.addEventListener("click", resetBEvent);
         }, 1000);
-        saveB.addEventListener("click", () => {
-            if(fix.value >= 1 && fix.value <= 9) {
-                exc_rnd.onclick = reference;
-                bar.disabled = false;
-                bnsbnrb.forEach(el => {
-                    el.disabled = false;
-                });
-                ercc.style.visibility = "hidden";
-                resetB.style.visibility = "hidden";
-                fixed = +fix.value;
-                proxEOBJ.exc_rnd = "FIX" + fixed;
-            }
-        });
+        saveB.addEventListener("click", saveBEvent);
     }
+    eltr.push([fix, fixEvent], [resetB, resetBEvent], [saveB, saveBEvent]);
 }
 
 function resetExcRnd() {
@@ -1169,16 +1224,20 @@ function sndAction() {
     document.querySelectorAll('.specs').forEach(s => {
         s.classList.toggle('sndcolor');
     });
-    if(timesActivated & 1 === 1) {
+    if((timesActivated & 1) === 1) {
         proxEOBJ.snd = "2ND";
         console.log('snd set');
         for(let i = 0; i < size; i++) {
             const si = smalls[i];
             const ni = nbs[i];
-            si.style.opacity = curTheme.specfncs.sndmode.up[1];
+            const ctssu = curTheme.specfncs.sndmode.up;
+            si.style.color = ctssu[0];
+            si.style.opacity = ctssu[1];
             si.style.fontWeight = 600;
-            si.style.color = curTheme.specfncs.sndmode.up[0];
             ni.style.opacity = 0.3;
+            baseSubSer.style.opacity = 1;
+            if(JSON.stringify(mutableSeriesConfigSettings) === jsonDef) baseSubSer.style.color = ctssu[0];
+
             if(/S[a-zA-Z]/.test(si.textContent) || ni.textContent.includes('log')) 
                 ni.parentNode.classList.toggle('holding');
         }
@@ -1192,10 +1251,14 @@ function sndAction() {
         for(let i = 0; i < size; i++) {
             const si = smalls[i];
             const ni = nbs[i];
-            si.style.opacity = curTheme.specfncs.normal.up[1];
+            const ctsnu = curTheme.specfncs.normal.up;
+            si.style.color = ctsnu[0];
+            si.style.opacity = ctsnu[1];
             si.style.fontWeight = 400;
-            si.style.color = curTheme.specfncs.normal.up[0];
             ni.style.opacity = 1;
+            baseSubSer.style.opacity = 1;
+            if(JSON.stringify(mutableSeriesConfigSettings) === jsonDef) baseSubSer.style.color = ctsnu[0];
+
             if(/S[a-zA-Z]/.test(si.textContent) || ni.textContent.includes('log')) 
                 ni.parentNode.classList.toggle('holding');
         }
@@ -1275,18 +1338,18 @@ function mainConfigTemplate(stv, drv, addProxy = true) {
         const edrv = evalRgx.test(seqIx2) || !isNaN(seqIx2);
         console.log(seqIx1, seqEval[seqVal1 - 1], seqIx2, seqEval[seqVal2 - 1], 'seqixs');
         console.log(seqVal1, seqVal2, 'seq values');
-        if((astv ? estv : true) && (adrv ? edrv : true)) {
+        if((astv ? estv : /^\d+(\.\d+)?$/.test(stv)) && (adrv ? edrv : /^\d+(\.\d+)?$/.test(drv))) {
             console.log(astv, adrv, estv, edrv, 'config stage A/X');
             mutableSeriesConfigSettings.start = astv ? seqIx1 : +mscsv;
             mutableSeriesConfigSettings.difference_ratio = adrv ? seqIx2 : +mscsdr;
-            baseSub.textContent = astv || adrv ? "A" : "X";
-            baseSub.style.color = curTheme.logserbase[astv || adrv ? "answer" : "constant"]; 
-            baseSubPopup.textContent = ansRgx.test(stv) ? seqIx1 : +mscsdr;
+            baseSubSer.textContent = astv || adrv ? "A" : "X";
+            baseSubSer.style.color = curTheme.logserbase[astv || adrv ? "answer" : "constant"]; 
+            // baseSubPopup.textContent = ansRgx.test(stv) ? seqIx1 : +mscsdr;
             seqErr = false;
             console.log(mutableSeriesConfigSettings, 'mutableseriesconfigsettings');
         } else {
-            baseSub.textContent = "E";
-            baseSub.style.color = curTheme.logserbase.error;
+            baseSubSer.textContent = "E";
+            baseSubSer.style.color = curTheme.logserbase.error;
             seqErr = true;
         }
         
@@ -1323,7 +1386,7 @@ function resetSeq() {
     stval.value = 1;
     serDiff.value = 1;
     reset.style.visibility = "hidden";
-    baseSub.textContent = 'x';
+    baseSubSer.textContent = 'x';
 }
 
 function resetLog() {
@@ -1336,6 +1399,33 @@ function resetLog() {
 
 function config() {
     const reference = SIP.onclick;
+    function stvalEvent(ev) {
+        ansInput(stval, ev, reset, true);
+        if(JSON.stringify(mutableSeriesConfigSettings) !== jsonDef) {
+            reset.style.visibility = "visible";
+        } else reset.style.visibility = "hidden";
+    } function serDiffEvent(ev) {
+        ansInput(serDiff, ev, reset, true);
+        if(JSON.stringify(mutableSeriesConfigSettings) !== jsonDef) {
+            reset.style.visibility = "visible";
+        } else reset.style.visibility = "hidden";
+    } function resetEvent() {
+        resetSeq();
+        baseSubSer.style.color = curTheme.specfncs.sndmode.up[0];
+    } function saveEvent() {
+        if(serDiff.value.length > 0 && stval.value.length > 0) {
+            mainConfigTemplate(stval.value, serDiff.value);
+        
+            SIP.onclick = reference;
+            bar.disabled = false;
+            bnsnsnr.forEach(el => {
+                el.disabled = false;
+            });
+            scc.style.visibility = "hidden";
+            reset.style.visibility = "hidden";
+        }
+        eltrAction();
+    }
     if(!sndactive) return;
     else {
         clearTimeout(this.downTimer);
@@ -1347,38 +1437,15 @@ function config() {
             SIPev();
             ari.addEventListener("click", arithTemplate); 
             geo.addEventListener("click", geomTemplate);
-            stval.addEventListener("keydown", ev => {
-                ansInput(stval, ev, reset, true);
-                if(JSON.stringify(mutableSeriesConfigSettings) !== jsonDef) {
-                    reset.style.visibility = "visible";
-                } else reset.style.visibility = "hidden";
-            }); serDiff.addEventListener("keydown", ev => {
-                ansInput(serDiff, ev, reset, true);
-                if(JSON.stringify(mutableSeriesConfigSettings) !== jsonDef) {
-                    reset.style.visibility = "visible";
-                } else reset.style.visibility = "hidden";
-            });
-
-            reset.addEventListener("click", () => {
-                resetSeq();
-                baseSub.style.color = curTheme.specfncs.sndmode.up[0];
-            });
+            stval.addEventListener("keydown", stvalEvent); 
+            serDiff.addEventListener("keydown", serDiffEvent);
+            reset.addEventListener("click", resetEvent);
         }, 1000);
-        save.addEventListener("click", () => {
-            if(serDiff.value.length > 0 && stval.value.length > 0) {
-                mainConfigTemplate(stval.value, serDiff.value);
-                
-                // document.querySelectorAll(".hoverValue").forEach(q => qsaHover(q, /Ans #\d+ --> \d+(\.\d+)?\s\|\s/));
-                SIP.onclick = reference;
-                bar.disabled = false;
-                bnsnsnr.forEach(el => {
-                    el.disabled = false;
-                });
-                scc.style.visibility = "hidden";
-                reset.style.visibility = "hidden";
-            }
-        });
+
+        save.addEventListener("click", saveEvent);
     }
+
+    eltr.push([ari, arithTemplate], [geo, geomTemplate], [stval, stvalEvent], [serDiff, serDiffEvent], [reset, resetEvent]);
 } 
 SIP.addEventListener("mousedown", config);
 SIP.addEventListener("mouseup", resetDownTimer);
@@ -1396,21 +1463,21 @@ function ansLogTemplate(liv) { // parameter is log input value
     const evals = localStorage.entryVals.split(',');
     const indexedVal = Number(evals[baseVal - 1]);
     const evalRgx = /\d+(\.\d+)?(E⁻?\d+)?/;
-    let baseSubPopup = document.getElementById('baseSubPopup');
+    // let baseSubPopup = document.getElementById('baseSubPopup');
 
     console.log('indexed val', indexedVal, !evalRgx.test(indexedVal) && !Number.isNaN(indexedVal));
 
-    if(Number.isInteger(baseVal) && baseVal >= 1 && baseVal <= evals.length 
+    if(Number.isInteger(baseVal) && baseVal >= 1 && baseVal < evals.length 
         && (evalRgx.test(indexedVal) || !Number.isNaN(indexedVal))) {
         logBase = indexedVal;
         baseSubLog.textContent = "A";
         baseSubLog.style.color = curTheme.logserbase.answer;
-        baseSubPopup.textContent = indexedVal;
+        // baseSubPopup.textContent = indexedVal;
         logErr = false;
     } else {
         baseSubLog.textContent = "E";
         baseSubLog.style.color = curTheme.logserbase.error;
-        baseSubPopup.innerHTML = "<em>x</em> in Ans(x) is not valid";
+        // baseSubPopup.innerHTML = "<em>x</em> in Ans(x) is not valid";
         logErr = true;
     }
 } function nonAnsLogTemplate(liv) {
@@ -1422,6 +1489,40 @@ function ansLogTemplate(liv) { // parameter is log input value
 
 function logBaseHold() {
     const reference = LogE.onclick;
+    function logInputEvent(ev) {
+        ansInput(logInput, ev, resetD);
+    } function resetDEvent() {
+        resetD.style.visibility = "hidden";
+        logInput.value = 10;
+    } function saveDEvent() {
+        if(logInput.value.length > 0) {
+            if(logInput.value !== "10" && logInput.value.includes("(")) {
+                proxEOBJ.log = "LOG"+`<sub>${logInput.value}</sub>`;
+            } else {
+                baseSubLog.textContent = logInput.value;
+                logErr = false;
+                delete proxEOBJ.log;
+            }
+            if(ansRgx.test(logInput.value) || Number.isNaN(Number(logInput.value))) {
+                proxEOBJ.log = "LOG"+`<span class="hoverValue"><sub>${logInput.value}</sub></span>`;
+                ansLogTemplate(logInput.value);
+            } else if (logInput.value !== "10") {
+                proxEOBJ.log = `LOG<sub>${logInput.value}</sub>`;
+                nonAnsLogTemplate(logInput.value);
+            } else {
+                resetLog();
+            }
+
+            LogE.onclick = reference;
+            bar.disabled = false;
+            bnsdnrd.forEach(el => {
+                el.disabled = false;
+            });
+            lbc.style.visibility = "hidden";
+            resetD.style.visibility = "hidden";
+        }
+        eltrAction();
+    }
     if(sndactive) return;
     else {
         clearTimeout(this.downTimer);
@@ -1429,44 +1530,12 @@ function logBaseHold() {
             resetD.style.visibility = logBase === 10 ? "hidden" : "visible";
             lbc.style.visibility = "visible";
             LBev();
-            logInput.addEventListener("keydown", ev => {
-                ansInput(logInput, ev, resetD);
-            });
-
-            resetD.addEventListener("click", () => {
-                resetD.style.visibility = "hidden";
-                logInput.value = 10;
-            });
+            logInput.addEventListener("keydown", logInputEvent);
+            resetD.addEventListener("click", resetDEvent);
         }, 1000);
-        saveD.addEventListener('click', () => {
-            if(logInput.value.length > 0) {
-                if(logInput.value !== "10" && logInput.value.includes("(")) {
-                    proxEOBJ.log = "LOG"+`<sub>${logInput.value}</sub>`;
-                } else {
-                    baseSubLog.textContent = logInput.value;
-                    logErr = false;
-                    delete proxEOBJ.log;
-                }
-                if(logInput.value.search(ansRgx) > -1) {
-                    proxEOBJ.log = "LOG"+`<span class="hoverValue"><sub>${logInput.value}</sub></span>`;
-                    ansLogTemplate(logInput.value);
-                } else if (logInput.value !== "10") {
-                    proxEOBJ.log = `LOG<sub>${logInput.value}</sub>`;
-                    nonAnsLogTemplate(logInput.value);
-                } else {
-                    resetLog();
-                }
-                // document.querySelectorAll(".hoverValue").forEach(q => qsaHover(q, /Ans #\d+ --> \d+(\.\d+)?\s\|\s/));
-                LogE.onclick = reference;
-                bar.disabled = false;
-                bnsdnrd.forEach(el => {
-                    el.disabled = false;
-                });
-                lbc.style.visibility = "hidden";
-                resetD.style.visibility = "hidden";
-            }
-        });
+        saveD.addEventListener('click', saveDEvent);
     }
+    eltr.push([logInput, logInputEvent], [resetD, resetDEvent], [saveD, saveDEvent]);
 }
 
 LogE.addEventListener("mousedown", logBaseHold);
@@ -1500,16 +1569,16 @@ function setValue(v) {
         }
         if(!sndactive || sndactive && !v.hasAttribute("data-specVal")) {
             const vgadv = v.getAttribute("data-val");
-            if(vgadv === '.' && (obef || bar.value === '')) {
-                template(v.dataset.valix, "data-val", "0");
-            }
             if(!(vgadv === '.' && !Number.isInteger(+ans) && bar.value.slice(inputIx - 3, inputIx) === 'Ans')) {
                 if(timesClickedAfterEvaluation === 1) barvalue('');
                 const io = [...operArr, '!', '%'].includes(vgadv);
                 if(io && bar.value === '') {
-                    barvalue('Ans');
+                    barvalue(vgadv === '.' ? '0' : 'Ans');
                     inputIx = bar.selectionStart;
-                } if(!(obef && io)) {
+                } if(vgadv === '.' && obef) {
+                    template(v.dataset.valix, "data-val", "0");
+                }
+                if(!(obef && io)) {
                     if(vgadv === 'log()' && logErr) {
                         ERR(`Invalid entry input for log() function`);
                         bar.value = "EntryError";
@@ -1542,19 +1611,16 @@ document.querySelectorAll(".val")
 
 function resetCalc() {
     const reference = cac.onclick;
-    cac.onclick = null;
-    clearTimeout(this.downTimer);
-    this.downTimer = setTimeout(() => {
-        rcc.classList.remove('dnone');
-        cac.classList.remove('holding');
-    }, 1000);
-    ep.addEventListener("click", () => {
+    function epEvent() {
         rcc.classList.add('dnone');
         cac.classList.add('holding');
         cac.onclick = reference;
-    });
-    rc.addEventListener("click", () => {
+        eltrAction();
+    } function rcEvent() {
         Object.keys(proxEOBJ).forEach(k => delete proxEOBJ[k]);
+        Object.keys(vnl).forEach(k => delete vnl[k]);
+        flexbut.childNodes.forEach(c => flexbut.removeChild(c));
+
         localStorage.varVals = "{}";
 
         USS();
@@ -1565,19 +1631,29 @@ function resetCalc() {
         rcc.classList.add('dnone');
         cac.classList.add('holding');
         cac.onclick = reference;
+        eltrAction();
 
         // reset visuals
         resetLog();
         resetSeq();
-        baseSub.style.color = curTheme.specfncs.normal.up[0];
+        baseSubSer.style.color = curTheme.specfncs.normal.up[0];
         resetExcRnd();
         resetDegRad();
 
         timesActivated = -1;
-        sndAction();
 
         loadTheme(curTheme);
-    });
+    }
+    cac.onclick = null;
+    clearTimeout(this.downTimer);
+    this.downTimer = setTimeout(() => {
+        rcc.classList.remove('dnone');
+        cac.classList.remove('holding');
+    }, 1000);
+    ep.addEventListener("click", epEvent);
+    rc.addEventListener("click", rcEvent);
+
+    eltr.push([ep, epEvent], [rc, rcEvent]);
 }
 
 cac.addEventListener("click", () => {
@@ -1643,7 +1719,7 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
 
     const sndOper = {
         "(?<!n)√" : roa, 
-        [rgxVal + "n√\\(" + rgxVal + "\\)"] : rob,
+        [rgxVal + "n√\\(([^()]*)\\)"] : rob,
 
         [rgxVal + "!"] : fpa,
         "%" : fpb,
@@ -1689,6 +1765,7 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
         str = str.replace(r, v);
     }
 
+
     if(ans !== null) {
         const rgx = new RegExp(`${rgxVal}(?!\\*)Ans(?!\\()|(?<r>Ans(?!\\*|\\()${rgxVal})`);
         let i = str.search(rgx);
@@ -1707,9 +1784,12 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
         serr(/Ans(?!\()/g, ans);
     }
 
+    // bracketing E and % (must be done post Ans repl)
+    str = str.replace(new RegExp(`${rgxVal}E${rgxVal}`, 'g'), (_, coef, exp) => `(${coef}*esn(${exp}))`);
+    str = str.replace(new RegExp(`${rgxVal}%`, 'g'), (_, exp) => `(${exp}/100)`);
+
     console.log(str, 'str before V switch');
     serr(/V(.)/g, "(V$1)");
-    // serr(new RegExp(`${rgxVal}?(E${rgxVal})`), "($1$2)");
     console.log(str, 'str after V switch');
 
     // implicit multiplication
@@ -1720,7 +1800,7 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
         if(rgx.test(str) && val?.variable) {
             console.log(val, rgx, 'valrgx');
             const type = val.variable;
-            const rvleft = spliceString(rgxVal, '(?<l>\\)|', 0) + ')'; // regex var for imp. mul. on the left
+            const rvleft = spliceString(rgxVal, '(?<l>\\)|%|', 0) + ')'; // regex var for imp. mul. on the left
             const rvright = spliceString(rgxVal, '(?<r>\\(|', 0) + ')'; // regex var for imp. mul. on the right
             console.log(rvleft, rvright);
             const rstr = new RegExp(type === 'b' ? `${rvleft}(?!\\*)(?<r>${k})|(?<l>${k})(?!\\*)${rvright}` : (
@@ -1787,7 +1867,8 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
     decFS();
 
     const evaluation = CEVAL(str, eop);
-    if(evaluation?.includes('Error')) return evaluation;
+    if(evaluation?.includes('Error')) return /([A-Z][a-z]+Error)/.exec(str)[0];
+    
     else {
         const evalN = close(evaluation);
         console.log((+evalN).toFixed(fixed), 'evaln');
@@ -1866,36 +1947,40 @@ copy.addEventListener("click", () => {
         });
 });
 
-paste.addEventListener("click", async () => {
+paste.addEventListener("click", async (e) => {
     try {
-        const pasted = (await navigator.clipboard.readText()).trim();
+        let pasted = (await navigator.clipboard.readText()).toLowerCase();
+        console.log(pasted);
+        for(const k in pasteReplacements) pasted = pasted.replaceAll(k, pasteReplacements[k]);
+        
         const pastesplit = [...pasted];
         console.log(pastesplit, 'pastesplit');
         const exprPart = [...bar.value];
-        if(pastesplit.every((e, i) => 
-            [...operArr, '(', ')'].includes(e) || /\d|[πeCP!%NSE]/.test(e) || e === 'V' && /./.test(pastesplit[i + 1]))
-            || /(((arc)?(sin|cos|tan))(?=\())|(n?√|ln|log|exp(?=\())/.test(pasted)) {
-                exprPart.splice(bar.selectionStart, 0, pasted.replace(/\*/g, '×').replace(/\//g, '÷'));
-                const newbss = bar.selectionStart + pasted.length;
-                const accEP = exprPart.join('');
-                barvalue(accEP);
-                bar.setSelectionRange(newbss, newbss);
-                saveUpdate('cpos', bar.selectionStart);
-                timesClickedAfterEvaluation++;
-                saveState.tcae++;
-                USS();
-
-                paste.classList.add("success");
-                setTimeout(() => {
-                    paste.classList.remove("success");
-                }, 500);
-        } else {
+        if(!(pastesplit.every((e, i) => 
+            [...operArr, '(', ')'].includes(e) || /\d|[πeCP!%NSE]/.test(e) || e === 'V' && /./.test(pastesplit[i + 1])))
+            && !(/(((arc)?(sin|cos|tan))(?=\())|(n?√|ln|log|Ans|exp(?=\())/.test(pasted))) {
             paste.classList.add("failure");
             setTimeout(() => {
                 paste.classList.remove("failure");
             }, 500);
             ERR("Invalid Expression Pasted");
             bar.value = "PasteError";
+        } else {
+            exprPart.splice(bar.selectionStart, 0, pasted);
+            const newbss = bar.selectionStart + pasted.length;
+            const accEP = exprPart.join('');
+            barvalue(accEP);
+            bar.setSelectionRange(newbss, newbss);
+            saveUpdate('cpos', bar.selectionStart);
+            timesClickedAfterEvaluation++;
+            saveState.tcae++;
+            USS();
+
+            paste.classList.add("success");
+            setTimeout(() => {
+                paste.classList.remove("success");
+            }, 500);
+            decFS();
         }
     } catch (error) {
         paste.classList.add("failure");
@@ -2071,20 +2156,20 @@ bar.addEventListener("keydown", ev => {
             evalSet();
         }
 
-        if(bar.value[ev.target.selectionStart - 1] === 'V') {
+        if(bar.value[ev.target.selectionStart - 1] === 'V' && bar?.value?.[ev.target.selectionStart - 2] !== 'V') {
             if(!Object.keys(vnl).includes(ev.key) && !ev.key?.[1]) {
                 ev.preventDefault();
                 ERR(`Variable, ${ev.key} does not exist`);
                 barvalue("VariableError");
             } 
-            // else {
-            //     console.log(vnl, ev.key);
-            //     if(/Error|Bounds/.test(vnl[ev.key])) {
-            //         ev.preventDefault();
-            //         ERR(`Invalid entry input for variable, ${ev.key}`);
-            //         bar.value = "EntryError";
-            //     }
-            // }
+            else {
+                console.log(vnl, ev.key);
+                if(/Error|Bounds/.test(vnl[ev.key])) {
+                    ev.preventDefault();
+                    ERR(`Invalid entry input for variable, ${ev.key}`);
+                    bar.value = "EntryError";
+                }
+            }
         } 
 
         else switch(ev.key) {
@@ -2289,7 +2374,7 @@ bar.addEventListener("keydown", ev => {
 
             case ".":
                 ev.preventDefault();
-                if(operIsThere(true) || bar.value === "")
+                if(operIsThere(true) || bar.value === "" || timesClickedAfterEvaluation === 0)
                     type("0.", 2);
                 else if (!operIsThere())
                     type(".", 1);
@@ -2435,8 +2520,13 @@ function setvarTemplate(name, val) {
     const newvar = document.createElement("button");
     newvar.classList.add('chvar', 'val');
     newvar.dataset.val = 'V' + name;
+    newvar.dataset.valix = '2';
     newvar.textContent = name;
-    newvar.addEventListener("click", () => setValue(newvar));
+    newvar.addEventListener("click", () => {
+        bar.disabled = false;
+        bar.focus();
+        setValue(newvar)
+    });
     flexbut.appendChild(newvar);
 }
 
@@ -2553,35 +2643,14 @@ varname.addEventListener("keydown", ev => {
 document.getElementById("var").addEventListener("click", () => {
     dvar.classList.toggle('dnone');
     dvar.classList.toggle('dbox');
-    if (dvar.classList.contains('dbox'))
-        varname.focus();
     VRev(tog);
     tog = !tog;
+    if(dvar.classList.contains('dbox'))
+        varname.focus();
 });
 
 themeLink.addEventListener("click", () => {
     themeUI.classList.toggle("dnone");
-});
-
-const [dft, lgt, drt] = document.querySelectorAll('#themes .theme');
-dft.addEventListener('click',  () => {
-    TBT(localStorage.scalcTheme);
-    localStorage.scalcTheme = 'default';
-    TBT(localStorage.scalcTheme);
-    curTheme = themes.default;
-    loadTheme(themes.default);
-}); lgt.addEventListener('click',  () => {
-    TBT(localStorage.scalcTheme);
-    localStorage.scalcTheme = 'light';
-    TBT(localStorage.scalcTheme);
-    curTheme = themes.light;
-    loadTheme(themes.light);
-}); drt.addEventListener('click',  () => {
-    TBT(localStorage.scalcTheme);
-    localStorage.scalcTheme = 'dark';
-    TBT(localStorage.scalcTheme);
-    curTheme = themes.dark;
-    loadTheme(themes.dark);
 });
 
 vtext.addEventListener("click", () => {
@@ -2608,8 +2677,56 @@ function loadSaveState() {
     decFS();
 }
 
+function loadCustomThemes() {
+    if(localStorage?.customThemes && localStorage.customThemes.length > 2) {
+        if(Object.keys(themes).length >= 9) // max of 6 custom themes
+            themeUI.removeChild(document.querySelector("#newtheme"));
+
+        const customs = JSON.parse(localStorage.customThemes);
+
+        for(const key in customs) {
+            const three = document.createElement('button');
+            const plus = document.createElement('button');
+            const name = document.createElement('span');
+            const container = document.createElement('div');
+            const main = document.createElement('div');
+
+            three.textContent = '3';
+            plus.textContent = '+';
+            name.textContent = key;
+
+            const ckey = customs[key];
+
+            container.style.backgroundColor = ckey.bg;
+            three.style.backgroundColor = "#" + ckey.num[0].slice(0, 6);
+            three.style.color = ckey.num[2];
+            plus.style.backgroundColor = "#" + ckey.opers[0].slice(0, 6);
+            plus.style.color = ckey.opers[2];
+
+            container.append(three, plus);
+            main.append(container, name);
+            main.dataset.actualname = key.replace(/"/g, '&quot;');
+            main.classList.add('theme', 'tstyle');
+
+            themeUI.insertBefore(main, document.querySelector("#newtheme"));
+        }
+    }
+
+    document.querySelectorAll('#themes .theme').forEach(t => {
+    t.addEventListener('click', () => {
+        const name = t.querySelector('span').textContent;
+        TBT(localStorage.scalcTheme);
+        localStorage.scalcTheme = name;
+        TBT(localStorage.scalcTheme);
+        curTheme = themes[name];
+        loadTheme(themes[name]);
+    });
+});
+}
+
 
 // initializing save state
 loadSaveState();
+bar.focus();
 
-// newplus.addEventListener("click", () => window.open('../themebuilder/tb.html', '_blank'));
+newplus.addEventListener("click", () => window.open('../themebuilder/tb.html', '_blank'));

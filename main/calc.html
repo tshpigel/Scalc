@@ -5,32 +5,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href='calc.css' type='text/css' rel='stylesheet'>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Recursive:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+
     <title>Calculator</title>
 </head>
 <body>
     <span id="toplinks">
         <a class="toplink" id="legendLink" target="_blank" href="../legend/keys.html">legend</a>
         <a class="toplink" id="themeLink">theme</a>
-        <span id="vtext">v2.6</span>
+        <span id="vtext">v3.0</span>
         <div id="patch" class="dnone">
+            <span class="title">3.0</span>
+            <hr>
+            <span class="list">- Added custom themes (up to 6)</span><br>
+            <span class="list">- Fixed compound factorialing</span><br>
+            <span class="list">- Fixed inconsistent UI</span><br>
+            <span class="list">- General bug fixes</span><br><br>
+
             <span class="title">2.6</span>
             <hr>
             <span class="list">- Fixed log()</span><br>
@@ -58,42 +48,45 @@
         </div>
     </span>
     <div id="themes" class="dnone">
-        <div id="defaultT" class="theme">
+        <div id="defaultT" data-actualname="default" class="theme tstyle">
             <div>
                 <button>3</button>
                 <button>+</button>
             </div>
             <span>default</span>
         </div>
-        <div id="lightT" class="theme">
+        <div id="lightT" data-actualname="light" class="theme tstyle">
             <div>
                 <button>3</button>
                 <button>+</button>
             </div>
             <span>light</span>
         </div>
-        <div id="darkT" class="theme">
+        <div id="darkT" data-actualname="dark" class="theme tstyle">
             <div>
                 <button>3</button>
                 <button>+</button>
             </div>
             <span>dark</span>
         </div>
-        <!-- <div id="newtheme">
-            <span id="newplus">+</span>
+        <div id="newtheme" class="tstyle">
+            <div id="newplus">
+                <button>3</button>
+                <button>+</button>
+            </div>
             <span>custom</span>
-        </div> -->
+        </div>
     </div>
     <span id="copyCont">
-        <img src="../copy.png" alt="copy" id="copy" width="30" height="30">
+        <svg id="copy" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="30" height="30" viewBox="0 0 24 24" fill="currentColor" style="opacity: 1; transform: rotate(0deg);"><g transform="translate(24 0) scale(-1 1)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M19.4 20H9.6a.6.6 0 0 1-.6-.6V9.6a.6.6 0 0 1 .6-.6h9.8a.6.6 0 0 1 .6.6v9.8a.6.6 0 0 1-.6.6"></path><path d="M15 9V4.6a.6.6 0 0 0-.6-.6H4.6a.6.6 0 0 0-.6.6v9.8a.6.6 0 0 0 .6.6H9"></path></g></g></svg>
     </span> 
     <span id="pasteCont">
-        <img src="../paste.png" alt="paste" id="paste" width="30" height="30">
+        <svg id="paste" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="30" height="30" viewBox="0 0 24 24" fill="currentColor" style="opacity: 1; transform: rotate(0deg);"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M8.5 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2.5"></path><path d="M8 6.4V4.5a.5.5 0 0 1 .5-.5c.276 0 .504-.224.552-.496C9.2 2.652 9.774 1 12 1s2.8 1.652 2.948 2.504c.048.272.276.496.552.496a.5.5 0 0 1 .5.5v1.9a.6.6 0 0 1-.6.6H8.6a.6.6 0 0 1-.6-.6Z"></path></g></svg>
     </span>
     <div id="extra"></div>
     <button class="arrow al"><i id="leftarrow"></i></button>
     <button class="arrow ar"><i id="rightarrow"></i></button>
-    <span id="baseSubPopupParent"><div id="baseSubPopup"></div></span>
+    <!-- <span id="baseSubPopupParent"><div id="baseSubPopup"></div></span> -->
     <div id="bcContainer"><div id="blinkingCursor"></div></div>
     <div id="body">
         <input id="bar" spellcheck="false">
@@ -159,7 +152,7 @@
             <button class="specs val" data-valIx="4" data-specValIx="7" data-val="tan()" data-specVal="arctan()" id="tan"><span class="small">tan<sup>-1</sup>(x) <sub></sub></span><br><span class="nb">tan(x) <sub></sub></span></button>
             <button class="specs val" data-valIx="1" data-specValIx="1" data-val="^" data-specVal="S" id="SIPower"><span class="small">S<sub id="baseSubSer">x</sub></span><br><span class="nb">n<sup>x</sup></span></button>
         </div>
-        <button class="specs val holding" data-valIx="4" data-specValIx="1" data-val="log()" data-specVal="E" id="logE"><span class="small">10<sup>x</sup></span><br><span class="nb">log<sub id="baseSub">10</sub>(x)</span></button>
+        <button class="specs val holding" data-valIx="4" data-specValIx="1" data-val="log()" data-specVal="E" id="logE"><span class="small">10<sup>x</sup></span><br><span class="nb">log<sub id="baseSubLog">10</sub>(x)</span></button>
         <button class="specs val" data-valIx="3" data-specValIx="4" data-val="ln()" data-specVal="exp()" id="lnexp"><span class="small">e<sup>x</sup></span><br><span class="nb">ln(x)</span></button>
         <div id="memcb">
             <div id="memorypb">
