@@ -1,1 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='../calc/calc.css' type='text/css' rel='stylesheet'>
+    <link href='tb.css' type='text/css' rel='stylesheet'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Recursive:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Calculator</title>
+</head>
+<body class="tb">
+    <div id="tbdiv">
+        <span id="copyCont">
+            <svg id="copy" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="30" height="30" viewBox="0 0 24 24" fill="currentColor" style="opacity: 1; transform: rotate(0deg);"><g transform="translate(24 0) scale(-1 1)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M19.4 20H9.6a.6.6 0 0 1-.6-.6V9.6a.6.6 0 0 1 .6-.6h9.8a.6.6 0 0 1 .6.6v9.8a.6.6 0 0 1-.6.6"></path><path d="M15 9V4.6a.6.6 0 0 0-.6-.6H4.6a.6.6 0 0 0-.6.6v9.8a.6.6 0 0 0 .6.6H9"></path></g></g></svg>
+        </span> 
+        <span id="pasteCont">
+            <svg id="paste" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="30" height="30" viewBox="0 0 24 24" fill="currentColor" style="opacity: 1; transform: rotate(0deg);"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M8.5 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2.5"></path><path d="M8 6.4V4.5a.5.5 0 0 1 .5-.5c.276 0 .504-.224.552-.496C9.2 2.652 9.774 1 12 1s2.8 1.652 2.948 2.504c.048.272.276.496.552.496a.5.5 0 0 1 .5.5v1.9a.6.6 0 0 1-.6.6H8.6a.6.6 0 0 1-.6-.6Z"></path></g></svg>
+        </span>
+        <div id="extra">2ND RAD</div>
+        <button class="arrow al"><i id="leftarrow"></i></button>
+        <button class="arrow ar"><i id="rightarrow"></i></button>
+        <span id="baseSubPopupParent"><div id="baseSubPopup"></div></span>
+        <div id="bcContainer"><div id="blinkingCursor"></div></div>
+        <div id="body">
+            <input id="bar" value="3+π" spellcheck="false">
+            <div id="main">
+                <button data-valIx="1" data-val="1" class="numbers val">1</button>
+                <button data-valIx="1" data-val="2" class="numbers val">2</button>
+                <button data-valIx="1" data-val="3" class="numbers val">3</button>
+                <br>
+                <button data-valIx="1" data-val="4" class="numbers val">4</button>
+                <button data-valIx="1" data-val="5" class="numbers val">5</button>
+                <button data-valIx="1" data-val="6" class="numbers val">6</button>
+                <br>
+                <button data-valIx="1" data-val="7" class="numbers val">7</button>
+                <button data-valIx="1" data-val="8" class="numbers val">8</button>
+                <button data-valIx="1" data-val="9" class="numbers val">9</button>
+                <br>
+                <button data-valIx="1" data-val="0" class="numbers val" id="zero">0</button>
 
+                <button data-valIx="3" data-val="Ans" id="ans" class="ans val holding">Ans</button>
+
+                <div id="dotneg">
+                    <button data-valIx="1" data-val="." id="bottom" class="dot operat basic val">.</button>
+                    <button id="top" class="neg operat">±</button>
+                </div>
+                <div id="drer">
+                    <button id="deg_rad">RAD</button>
+                    <button id="exc_rnd">ROUND</button>
+                </div>
+            </div>
+
+            <div id="equ">
+                <button id="equb" class="equ operat"> = </button>
+            </div>
+            <div id="operat">
+                <button data-valIx="1" data-val="÷" class="operat basic val">÷</button><br>
+                <button data-valIx="1" data-val="×" class="operat basic val">×</button><br>
+                <button data-valIx="1" data-val="-" class="operat basic val"> - </button><br>
+                <button data-valIx="1" data-val="+" class="operat basic val">+</button><br>
+            </div>
+            <div id="snd">
+                <button id="sndb" class="snd"><span id="sndsub">2nd</span></button>
+            </div>
+            <div id="right">
+                <button class="specs val" data-valIx="1" data-specValIx="1" data-val="π" data-specVal="e" id="pi"><span class="small">e</span><br><span class="nb">π</span></button>
+                <button class="specs val" data-valIx="2" data-specValIx="3" data-val="√()" data-specVal="n√()" id="root"><span class="small"><sup>n</sup>√x</span><br><span class="nb">√x</span></button>
+                <button class="specs val" data-valIx="1" data-specValIx="1" data-val="!" id="perc" data-specVal="%" id="fac"><span class="small">x% <sub></sub></span><br><span class="nb">x! <sub></sub></span></button>
+                <button class="specs val" data-valIx="1" data-specValIx="2" data-val="C" data-specVal="P" id="pAc"><span class="small"><sub>n</sub>P<sub>r</sub></span><br><span class="nb"><sub>n</sub>C<sub>r</sub></span></button>
+                <button class="specs val" data-valIx="4" data-specValIx="7" data-val="sin()" data-specVal="arcsin()" id="sin"><span class="small">sin<sup>-1</sup>(x)</span><br><span class="nb">sin(x)</span></button>
+                <button class="specs val" data-valIx="4" data-specValIx="7" data-val="cos()" data-specVal="arccos()" id="cos"><span class="small">cos<sup>-1</sup>(x)</span><br><span class="nb">cos(x)</span></button>
+                <button class="specs val" data-valIx="4" data-specValIx="7" data-val="tan()" data-specVal="arctan()" id="tan"><span class="small">tan<sup>-1</sup>(x) <sub></sub></span><br><span class="nb">tan(x) <sub></sub></span></button>
+                <button class="specs val" data-valIx="1" data-specValIx="1" data-val="^" data-specVal="S" id="SIPower"><span class="small">S<sub id="servalid">A</sub><sub id="sererror">E</sub></span><br><span class="nb">n<sup>x</sup></span></button>
+            </div>
+            <button class="specs val holding" data-valIx="4" data-specValIx="1" data-val="log()" data-specVal="E" id="logE"><span class="small">10<sup>x</sup></span><br><span class="nb">log<sub id="logconst">X</sub>(x)</span></button>
+            <button class="specs val" data-valIx="3" data-specValIx="4" data-val="ln()" data-specVal="exp()" id="lnexp"><span class="small">e<sup>x</sup></span><br><span class="nb">ln(x)</span></button>
+            <div id="memcb">
+                <div id="memorypb">
+                    <span id="mems">
+                        <button id="mem">MEM</button>
+                        <div class="dnone" id="dmem">
+                            <button id="mc" class="memory">MC</button>
+                            <button id="mp" class="memory">M+</button>
+                            <button id="mm" class="memory">M-</button>
+                            <button id="mr" class="memory">MR</button>
+                        </div>
+                    </span>
+                    <span id="vars">
+                        <button id="var">VAR</button>
+                        <div class="dnone" id="dvar">
+                            <h5><button class="nostyle">Set</button><span class="gap">&ensp;</span><button class="nostyle"></button></h5><br>
+                            <div>
+                                <input type="text" id="varname" maxlength="1" placeholder="x" disabled>
+                                <input type="text" id="varval" placeholder="Value" disabled>
+                            </div>
+                            <h5>Choose</h5>
+                            <div id="flexbut"></div>
+                        </div>
+                    </span>
+                    <button data-valIx="1" data-val="()" class="val" id="brack">( )</button>
+                    <button id="del">DEL</button>
+                    <button id="cac" class="holding">AC</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="options">
+        <div id="refcont">
+            <button id="reference">Change Reference Theme</button>
+            <button id="edit">Edit Custom Theme</button>
+            <div class="dnone"><button id="original" class="dnone">Original</button><button>Default</button><button>Light</button><button>Dark</button></div>
+        </div>
+        <div id="explaincont">
+            <div class="box"><span class="tbbg"></span>BG</div>
+            <div class="box"><span class="tbbs"></span>Shadow</div>
+            <div class="box"><span class="tbhbg"></span>Hover BG</div>
+            <div class="box"><span class="tbhbs"></span>Hover Shadow</div>
+            <div class="box"><span class="tbc"></span>Text/Line</div>
+            <div class="box"><span class="tbo"></span>Opacity</div>
+            <div class="box"><span class="tbgreen"></span>Valid</div>
+            <div class="box"><span class="tbred"></span>Invalid</div>
+            <div class="box"><span class="tbyellow"></span>Constant</div>
+        </div>
+        <div id="alloptions">
+            <div class="option" id="tbpage"><span>Page</span><span class="boxes" data-class="bg"><input class="tbbg" type="color"></span></div>
+        
+            <div class="option" id="tbtext"><span>Bar Text</span><span class="boxes" data-class="textcol"><input type="color" class="tbc"></span></div>
+
+            <div class="option" id="tbnotes"><span>Bar Notes</span><span class="boxes" data-class="barnotes"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbhold"><span>Holding Button Border</span><span class="boxes" data-class="holdbtnborder"><input type="color" class="tbh"></span></div>
+            
+            <div class="option" id="tbbody"><span>Body</span><span class="boxes" data-class="body"><input class="tbbg" type="color"><input class="tbbs" type="color"></span></div>
+            
+            <div class="option" id="tbpaste"><span>Paste</span><span class="boxes" data-class="paste"><input class="tbbg" type="color"><input class="tbbs" type="color"><input class="tbhbg" type="color"><input class="tbhbs" type="color"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbcopy"><span>Copy</span><span class="boxes" data-class="copy"><input class="tbbg" type="color"><input class="tbbs" type="color"><input class="tbhbg" type="color"><input class="tbhbs" type="color"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbcursor"><span>Cursor Button</span><span class="boxes" data-class="curbut"><input class="tbbg" type="color"><input class="tbbs" type="color"><input class="tbhbg" type="color"><input class="tbhbs" type="color"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbarrow"><span>Arrows</span><span class="boxes" data-class="arrows"><input type="color" class="tbbg"><input type="color" class="tbhbg"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbmemvar"><span>Memory + Variable</span><span class="boxes" data-class="memvar" data-nested="true"><input type="color" class="tbbg" data-class="subbtns"><input type="color" class="tbbs" data-class="subbtns"><input type="color" class="tbhbg" data-class="subbtns"><input type="color" class="tbhbs" data-class="subbtns"><input type="color" class="tbc" data-class="subbtns"><input type="color" class="tbbg" id="secondmv"><input type="number" class="tbo" title=""></span></div>
+            
+            <div class="option" id="tbdelacbrac"><span>() + Delete + AC</span><span class="boxes" data-class="delacbrac"><input type="color" class="tbbg"><input type="color" class="tbbs"><input type="color" class="tbhbg"><input type="color" class="tbhbs"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbsnd"><span>2nd Button</span><span class="boxes" data-class="snd"><input type="color" class="tbbg"><input type="color" class="tbbs"><input type="color" class="tbhbg"><input type="color" class="tbhbs"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbnum"><span>Numbers</span><span class="boxes" data-class="num"><input type="color" class="tbbg"><input type="color" class="tbbs"><input type="color" class="tbhbg"><input type="color" class="tbhbs"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbans"><span>Answer Button</span><span class="boxes" data-class="ans"><input type="color" class="tbbg"><input type="color" class="tbbs"><input type="color" class="tbhbg"><input type="color" class="tbhbs"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbradround"><span>Rad + Round</span><span class="boxes" data-class="radround"><input type="color" class="tbbg"><input type="color" class="tbbs"><input type="color" class="tbhbg"><input type="color" class="tbhbs"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbopers"><span>Operators</span><span class="boxes" data-class="opers"><input type="color" class="tbbg"><input type="color" class="tbbs"><input type="color" class="tbhbg"><input type="color" class="tbhbs"><input type="color" class="tbc"></span></div>
+            
+            <div class="option" id="tbfunc"><span>Functions</span><span class="boxes" data-class="specfncs" data-nested="true"><input type="color" class="tbbg" data-nest1="normal" data-nest2="base"><input type="color" class="tbbs" data-nest1="normal" data-nest2="base"><input type="color" class="tbhbg" data-nest1="normal" data-nest2="base"><input type="color" class="tbhbs" data-nest1="normal" data-nest2="base"><input type="color" class="tbc" data-nest1="normal" data-nest2="base"><input type="color" class="tbc endfunc" data-nest="normal"><input type="color" class="tbc endfunc" data-nest="sndmode"><input type="number" class="tbo" title="" data-nest="normal"><input type="number" title="" class="tbo" data-nest="sndmode"></span></div>
+            
+            <div class="option" id="tblogser"><span>Log + Series Custom Value</span><span class="boxes" data-class="logserbase" data-nested="true"><input type="color" class="tbgreen" data-class="answer"><input type="color" class="tbred" data-class="error"><input type="color" class="tbyellow" data-class="constant"></span></div>
+        </div>
+
+        <div id="finish">
+            <button>Finalize Theme</button>
+        </div>
+    </div>
+    <div id="glass" class="dnone"></div>
+    <div id="finalBox" class="dnone">
+        <div><span class="noedit">Are you sure you want to save this theme?</span><span class="yesedit dnone">Are you sure you want to update this theme?</span></div>
+        <div>
+            <span id="nameerr" class="dnone">Name already taken</span>
+            <input type="text" value="theme-name" id="themeName" maxlength="14">
+        </div>
+        <div><button id="confirm">Yes</button><button id="cancel">Cancel</button></div>
+        <div id="confirmation" class="dnone"><span>Your theme has been saved, you can now use it in the extension</span></div>
+    </div>
+    <script src='tb.js'></script>
+</body>
+</html>
