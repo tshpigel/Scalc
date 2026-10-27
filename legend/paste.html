@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="paste.css">
+    <title>Paste Alias Table</title>
+</head>
+<body>
+    <h2>Paste Alias Table</h2>
+    <table>
+        <tr>
+            <th>Aliases (case-insensitive)</th>
+            <th>Translation</th>
+        </tr>
+
+        <tr><td><pre>·</pre> <pre>⨉</pre> <pre>*</pre></td><td>Multiplication <pre>×</pre></td></tr>
+        <tr><td><pre>x</pre></td><td>Multiplication only when in between two values ie <pre>3x4</pre>→<pre>3×4</pre> but <pre>Vx+4</pre> will stay the same</td></tr>
+        <tr><td>any dash</td><td>Subtraction or negation accordingly ie <pre>3-4</pre>→<pre>3-4</pre> and <pre>3+-4</pre>→<pre>3+⁻4</pre></td></tr>
+        <tr><td>any slash</td><td>Division <pre>÷</pre></td></tr>
+        <tr><td>any bracket</td><td>Parentheses <pre>()</pre></td></tr>
+        <tr><td><pre>atrig(</pre><pre>trig-1(</pre></td><td>Inverse trigonometric function <pre>arctrig(</pre></td></tr>
+        <tr><td><pre>sqrt(</pre><pre>root(</pre></td><td>Square root <pre>√(</pre></td></tr>
+        <tr><td><pre>nth</pre></td><td>Nth root <pre>n√(</pre> ie <pre>3 nth root(27)</pre>→<pre>3n√(27)</pre> (only in the context of an nth-root, otherwise it will cause a PasteError)</td></tr>
+        <tr><td><pre>**</pre></td><td>Exponent <pre>^</pre></td></tr>
+        <tr><td><pre>n²</pre>...<pre>n⁹</pre></td><td>Exponents 2 through 9 <pre>n^2</pre>...<pre>n^9</pre></td></tr>
+        <tr><td><pre>nex</pre> <pre>ne+x</pre> <pre>ne-x</pre></td><td>Exponents of 10 ie <pre>3e4</pre> / <pre>3e+4</pre>→<pre>3E4</pre> and <pre>3e-4</pre>→<pre>3E⁻4</pre> only in this format (otherwise <pre>e</pre> stays as euler's number)</td></tr>
+        <tr><td><pre>percent</pre></td><td>Percent <pre>%</pre></td></tr>
+        <tr><td><pre>ans</pre></td><td>Answer <pre>Ans</pre></td></tr>
+        <tr><td><pre>pi</pre></td><td>Pi <pre>π</pre></td></tr>
+        <tr><td><pre>=</pre><td>Equals is ignored at the beginning or end of an expression</td></td></tr>
+        <tr><td><pre>,</pre><td>Comma is ignored before 3 digits ie <pre>9,999,000</pre> → <pre>9999000</pre></td></td></tr>
+        <tr><td><pre>$</pre><pre>€</pre><pre>£</pre><pre>¥</pre><pre>₩</pre><pre>₹</pre><pre>元</pre><pre>฿</pre><pre>₱</pre><pre>₪</pre></td><td>These currency symbols are ignored</td></tr>
+    </table>
+    <button id="prev">Back</button>
+    <script src="paste.js"></script>
+</body>
+</html>
