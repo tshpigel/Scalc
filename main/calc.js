@@ -10,9 +10,9 @@ const LSF = prop => (localStorage[prop] || '').split(',').filter(e => e.length >
 let lsEV = LSF("entryVals");
 let lsE = LSF("entries");
 let lsD = LSF("date");
-// const LS = [lsEV, lsE, lsD];
-// const init = LS.map(e => e.length).sort()[0];
-// for(let L of LS) L = L.slice(0, init);
+const LS = [lsEV, lsE, lsD];
+const init = Math.min(...LS.map(e => e.length));
+for(const L of LS) L.length = init;
 
 localStorage.entryVals = lsEV.join(',') + ',';
 localStorage.entries = lsE.join(',') + ',';
@@ -304,21 +304,21 @@ const proxFUNCS = {
     }
 }
 
-const pasteReplacements = {
-    ' ': '',
-    '*': '×',
-    '/': '÷',
-    'sqrt': '√',
-    'root': '√',
-    'pi': 'π',
-    '[': '(',
-    ']': ')',
-    'percent': '%',
-    'sin-1': 'arcsin',
-    'cos-1': 'arccos',
-    'tan-1': 'arctan',
-    'ans': 'Ans'
-};
+// const pasteReplacements = {
+//     ' ': '',
+//     '*': '×',
+//     '/': '÷',
+//     'sqrt': '√',
+//     'root': '√',
+//     'pi': 'π',
+//     '[': '(',
+//     ']': ')',
+//     'percent': '%',
+//     'sin-1': 'arcsin',
+//     'cos-1': 'arccos',
+//     'tan-1': 'arctan',
+//     'ans': 'Ans'
+// };
 
 const add = {
     conversion : "+",
@@ -641,8 +641,21 @@ function count(c, s) {
 }
 
 function perms(n, r) {
+    if(Number.isInteger(n) && Number.isInteger(r) && r >= 0 && r <= n) {
+        let res = 1;
+        for(let i = n - r + 1; i <= n; i++) 
+            res *= i;
+        return res;
+    }
     return fac(n) / fac(n - r);
 } function combs(n, r) {
+    if(Number.isInteger(n) && Number.isInteger(r) && r >= 0 && r <= n) {
+        const k = Math.min(r, n - r);
+        let res = 1;
+        for(let i = 1; i <= k; i++) 
+            res = Math.round(res * (n - k + i) / i);
+        return res;
+    }
     return fac(n) / (fac(n - r) * fac(r));
 }
 
@@ -662,21 +675,23 @@ function rvv(name) { // retrieve variable value
 }
 
 function NP(s) { // negative parse
-    if(s[0] === '⁻') return -s.slice(1);
-    else return +s;
+    s = String(s);
+    const neg = s[0] === '⁻';
+    const n = +(neg ? s.slice(1) : s).replace('E⁻', 'e-').replace('E', 'e');
+    return neg ? -n : n;
 } function RNP(s) { // reverse negative parse
     return s.replace(/(\.\d*[^0])0+[Ee]/, "$1E")
-            .replace(/^-(\d+(?:\.\d+)?)$/, "⁻$1");
+            .replace(/^-(\d+(?:\.\d+)?(?:e[+-]\d+)?)$/, "⁻$1");
 }
 
 
 function ansLoc(ix) {
-    const eval = localStorage.entryVals ? localStorage.entryVals : '';
-    return eval.split(',')[ix - 1];
+    // const eval = localStorage.entryVals ? localStorage.entryVals : '';
+    return LSF("entryVals")[ix - 1];
 }
 
 function ansLocEval(ix) {
-    if(ix > LSF("entries").length) {
+    if(ix > LSF("entryVals").length) {
         ERR(`Ans #${ix} is out of bounds`);
         bar.value = "EntryError";
         return 'EntryError';
@@ -733,12 +748,13 @@ function CEVAL(str, op = false, exact = false) {
     try {
         let whileIndex = 0;
         while(/\(.*\)/.test(c)) {
+            c = c.replace(/(?<![\d.)])⁻⁻/g, ''); // ⁻ in front of a negative result, eg ⁻sin(⁻30) or ⁻Ans
             if(++whileIndex > 1000) {
                 ERR("Invalid Expression");
                 return "CalculationError";
             }
             c = c.replace(/([a-zA-Z]+)?\(([^()]*)\)/, (_, p1, p2) => {
-                if(p1) {
+                if(p1 && p1 !== 'C' && p1 !== 'P') {
                     console.log(p1, p2, 'p1 p2 log')
                     const args = p2.split(',').map(e => isNaN(e) ? NP(CEVAL(e)) : (e.length === 0 ? '' : +NP(e)));
                     console.log(args);
@@ -754,6 +770,7 @@ function CEVAL(str, op = false, exact = false) {
                         return RNP(String(funcs[p1][0](...args)));
                     }
                 }
+                else if (p1 === 'C' || p1 === 'P') return p1 + String(CEVAL(p2, op, true));
                 else return String(CEVAL(p2, op, true));
             });
         }
@@ -769,6 +786,7 @@ function CEVAL(str, op = false, exact = false) {
             }
             return r;
         }
+        c = c.replace(/(?<![\d.)])⁻⁻/g, '');
         if(/^[)*/+\^-]|[(*/+\^-]$/.test(c)) throw Error();
 
         // nested factorial and P+C fix
@@ -784,10 +802,10 @@ function CEVAL(str, op = false, exact = false) {
                 RNP(String(p2 === 'C' ? combs(NP(p1), NP(p3)) : perms(NP(p1), NP(p3)))));
         }
 
-        c = srepl('\\^', (_, p1, p2, p3) => String(NP(p1) ** NP(p3)));
-        c = srepl('*/', (_, p1, p2, p3) => String(p2 === '*' ? NP(p1) * NP(p3) : (
-            NP(p3) === 0 ? 'ZeroDivisionError' : NP(p1) / NP(p3)
-        )));
+        c = srepl('\\^', (_, p1, p2, p3) => RNP(String(NP(p1) ** NP(p3))));
+        c = srepl('*/', (_, p1, p2, p3) => p2 === '*' ? RNP(String(NP(p1) * NP(p3))) : (
+            NP(p3) === 0 ? 'ZeroDivisionError' : RNP(String(NP(p1) / NP(p3)))
+        ));
         if(c.includes('ZeroDivisionError')) {
             if(!op) {
                 c = 'ZeroDivisionError';
@@ -823,16 +841,16 @@ function CEVAL(str, op = false, exact = false) {
 
     decFS();
 
-    console.log(close(c), 'close c');
-
-    return c.includes("Error") ? c : RNP(String(close(c)));
+    return c.includes("Error") ? c : RNP(String(close(NP(c))));
 }
 
 function expoParse(s) {
     const nps = NP(s);
-    if(+nps >= 1e15 || +nps !== 0 && +nps > -9e-6 && +nps < 1e-6) return (+nps).toExponential()
-        .replace(/(\d(?:\.\d{8,})?)e([+-]\d+)/, (_, p1, p2) => 
-            `${p1.slice(0, 11)}E${(p2[0] === '+' ? '' : '⁻') + p2.slice(1)}`)
+    if(+nps >= 1e15 || +nps !== 0 && +nps > -9e-6 && +nps < 1e-6) {
+        const [m, e] = (+nps).toExponential(9).split('e');
+        const mant = m.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '').replace('-', '⁻');
+        return `${mant}E${e[0] === '+' ? '' : '⁻'}${e.slice(1)}`;
+    } 
     else return s;
 }
 
@@ -850,7 +868,7 @@ function limit(num) {
     const numStr = [...num.toString()];
     const maxLim = 16;
     if(numStr.length > maxLim) {
-        num = RNP(NP(num).toFixed(maxLim));
+        num = RNP(String(+NP(num).toPrecision(maxLim - 1)));
     }
     return num;
 }
@@ -930,10 +948,14 @@ function close(num) {
     const nts = String(num);
     const neg = nts[0] === '-';
 
+    // exponent form (e.g. 6.000000000000001e-8): clean the mantissa only, otherwise the "0.00000000x" rule below zeroes the whole number
+    const em = /^(-?\d+(?:\.\d+)?)e([+-]\d+)$/i.exec(nts);
+    if(em) return Number(`${close(Number(em[1]))}e${em[2]}`);
+
     const mfn = Math.floor(Math.abs(num));
     console.log(rgxd.exec(nts), 'rgxdexecnts')
     if(rgxi.test(nts) && rgx9.test(nts)) return (neg ? -1 : 1) * (mfn + Number(`0.${parseInt(rgxi.exec(nts)[1]) + 1}`));
-    else if (rgx0.test(nts)) return mfn;
+    else if (rgx0.test(nts)) return (neg ? -1 : 1) * mfn;
     else if (rgxd.test(nts)) return (neg ? -1 : 1) * (mfn + Number(`0.${rgxd.exec(nts)[1]}${rgxd.exec(nts)[2]}`));
     else return num;
 }
@@ -941,11 +963,11 @@ function close(num) {
 function realTemplate(val, fnc) {
     const main = Math[fnc](val * Math.PI / 180);
     console.log('main', main);
-    return (main / 1.2246467991473532e-16) % 1 === 0 && main < 1e-8 && main > -1e-8 && fnc !== 'cos' ? 0 : close(main);
+    return (fnc !== 'tan' && Math.abs(main) < 1e-15) || ((main / 1.2246467991473532e-16) % 1 === 0 && main < 1e-8 && main > -1e-8 && fnc !== 'cos') ? 0 : close(main); // |sin/cos| < 1e-15 is float noise (cos(90) = 6e-17)
 } function fakeTemplate(val, fnc) {
     const main = Math[fnc](val);
     console.log('main', main);
-    return (main / 1.2246467991473532e-16) % 1 === 0 && main < 1e-8 && main > -1e-8 && fnc !== 'cos' ? 0 : close(main);
+    return (fnc !== 'tan' && Math.abs(main) < 1e-15) || ((main / 1.2246467991473532e-16) % 1 === 0 && main < 1e-8 && main > -1e-8 && fnc !== 'cos') ? 0 : close(main); // |sin/cos| < 1e-15 is float noise (cos(90) = 6e-17)
 }
 
 function sinFake(val) { return fakeTemplate(val, "sin") }
@@ -1701,7 +1723,7 @@ function degRad() {
 deg_rad.addEventListener("click", degRad);
 
 function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = false) {
-    const rgxVal = "(⁻?\\d+(?:\\.\\d+)?|(?<!ak|p)e|π|V.)";
+    const rgxVal = "(⁻?\\d+(?:\\.\\d+)?|(?<!ak|p)e(?!uler|xp|sn)|π|V.)";
 
     const { snd: peb, ...pea } = pieE;
     const { snd: rob, ...roa } = root;
@@ -1742,9 +1764,9 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
         "(?<!arc)tan" : taa, 
         "arctan" : tab,
 
-        [rgxVal + "\\^" + rgxVal] : esa,
         ["S" + rgxVal] : esb,
         ["N" + rgxVal] : esc,
+        [rgxVal + "\\^" + rgxVal] : esa,
 
         "Ans(\\([1-9]\\d*\\))": ansf,
         "V.": ava,
@@ -1767,19 +1789,19 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
 
 
     if(ans !== null) {
+        str = str.replace(/Ans\((?!\d+\)|Ans\))/g, 'Ans*('); // Ans(2+3) is Ans×(2+3); only Ans(n) with a plain integer n is an entry lookup
         const rgx = new RegExp(`${rgxVal}(?!\\*)Ans(?!\\()|(?<r>Ans(?!\\*|\\()${rgxVal})`);
-        let i = str.search(rgx);
-        console.log(str);
         while(/AnsAns/.test(str)) str = str.replace(/AnsAns/, "Ans*Ans");
         let whileIndex = 0;
-        while(i >= 0) {
+        let m;
+        while((m = rgx.exec(str)) !== null) {
             if(++whileIndex > 1000) {
                 ERR("Invalid Expression");
                 return "CalculationError";
             }
 
-            str = brackForClick(rgx.exec(str)?.groups?.r ? i + 2 : i, str, "*");
-            i = str.search(rgx);
+            const at = m.groups?.r ? m.index + 3 : m.index + m[0].length - 3;
+            str = str.slice(0, at) + "*" + str.slice(at);
         }
         serr(/Ans(?!\()/g, ans);
     }
@@ -1800,7 +1822,7 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
         if(rgx.test(str) && val?.variable) {
             console.log(val, rgx, 'valrgx');
             const type = val.variable;
-            const rvleft = spliceString(rgxVal, '(?<l>\\)|%|', 0) + ')'; // regex var for imp. mul. on the left
+            const rvleft = spliceString(rgxVal, '(?<l>\\)|%|!|', 0) + ')'; // regex var for imp. mul. on the left
             const rvright = spliceString(rgxVal, '(?<r>\\(|', 0) + ')'; // regex var for imp. mul. on the right
             console.log(rvleft, rvright);
             const rstr = new RegExp(type === 'b' ? `${rvleft}(?!\\*)(?<r>${k})|(?<l>${k})(?!\\*)${rvright}` : (
@@ -1831,6 +1853,9 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
 
     console.log(str, 'str after vswitch 2');
 
+    // implicit multiplication after a factorial of a bracket / variable: (2+3)!4, Vn!Vn
+    str = str.replace(/\)!(?=[\d.π(eV⁻]|sin|cos|tan|arc|log|ln|S|N|√|Ans)/g, ')!*');
+
     // replacements
     const brackRGX = new RegExp(`\\)\\(|\\)${rgxVal}|${rgxVal}\\(`);
     const TbrackRGX = /\)\(/g;
@@ -1841,7 +1866,10 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
             ERR("Invalid Expression");
             return "CalculationError";
         }
-        str = brackForClick(str.search(brackRGX), str, "*");
+
+        const bm = brackRGX.exec(str);
+        const bat = bm[0][0] === ')' ? bm.index + 1 : bm.index + bm[0].length - 1;
+        str = str.slice(0, bat) + "*" + str.slice(bat);
     }
 
     function mainConversion() {
@@ -1867,12 +1895,30 @@ function evaluate(string, eop = false, noExtraBrack = false, onlyConversion = fa
     decFS();
 
     const evaluation = CEVAL(str, eop);
-    if(evaluation?.includes('Error')) return /([A-Z][a-z]+Error)/.exec(str)[0];
+    if(evaluation?.includes('Error')) 
+        return  /(?:[A-Z][a-z]+)+Error/.exec(str)?.[0] ?? 
+                /(?:[A-Z][a-z]+)+Error/.exec(evaluation)?.[0] ?? 
+                'CalculationError';
     
     else {
-        const evalN = close(evaluation);
+        const evalN = RNP(String(close(NP(evaluation))));
         console.log((+evalN).toFixed(fixed), 'evaln');
         return expoParse(!exact ? limit(evalN) : RNP(NP(evalN).toFixed(fixed)));
+    }
+}
+
+function recordEntry(expr, val) {
+    const t = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const stamp = `${t.getDate()}/${t.getMonth() + 1}/${t.getFullYear()} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+    const clean = v => String(v).replace(/,/g, ';');
+    const writes = [['entries', clean(expr)], ['entryVals', clean(val)], ['date', stamp]];
+    const before = writes.map(([k]) => localStorage.getItem(k));
+    try {
+        for(const [k, v] of writes) localStorage.setItem(k, (localStorage.getItem(k) || '') + v + ',');
+    } catch(err) {
+        writes.forEach(([k], i) => before[i] === null ? localStorage.removeItem(k) : localStorage.setItem(k, before[i]));
+        throw err;
     }
 }
 
@@ -1883,38 +1929,26 @@ function evalSet() {
     saveState.tcae = 0;
     USS();
     if(lss < max && !errMode) {
-        eCount.textContent++;
-        if(!localStorage.entries) {
-            localStorage.entries = bar.value + ",";
-        } else localStorage.entries += bar.value + ",";
-        
+        const expr = bar.value;
+        let result;
+
         // where bar changes value
-        barvalue(evaluate(bar.value));
+        try {
+            result = evaluate(expr);
+        } catch(err) {
+            console.error(err);
+            ERR("Invalid Expression");
+            result = "CalculationError";
+        }
+        
+        barvalue(result);
         ans = bar.value;
+
+        recordEntry(expr, ans.toString());
+        eCount.textContent++;
         
         decFS();
         ansFuncHover();
-
-        if(!localStorage.entryVals) {
-            localStorage.entryVals = ans.toString()+",";
-        } else localStorage.entryVals += ans.toString()+",";
-
-        const time = new Date();
-        const day = time.getDate();
-        const month = time.getMonth() + 1;
-        const year = time.getFullYear();
-        const hour = time.getHours();
-        const minute = time.getMinutes();
-
-        function add0(variable) {
-            return (variable.toString().length == 1) ? "0"+variable : variable;
-        }
-
-        if(!localStorage.date) {
-            localStorage.date = `${day}/${month}/${year} ${add0(hour)}:${add0(minute)},`.toString();
-        } else {
-            localStorage.date += `${day}/${month}/${year} ${add0(hour)}:${add0(minute)},`.toString();
-        }
 
         getEntries();
     } else {
@@ -1947,48 +1981,77 @@ copy.addEventListener("click", () => {
         });
 });
 
-paste.addEventListener("click", async (e) => {
-    try {
-        let pasted = (await navigator.clipboard.readText()).toLowerCase();
-        console.log(pasted);
-        for(const k in pasteReplacements) pasted = pasted.replaceAll(k, pasteReplacements[k]);
-        
-        const pastesplit = [...pasted];
-        console.log(pastesplit, 'pastesplit');
-        const exprPart = [...bar.value];
-        if(!(pastesplit.every((e, i) => 
-            [...operArr, '(', ')'].includes(e) || /\d|[πeCP!%NSE]/.test(e) || e === 'V' && /./.test(pastesplit[i + 1])))
-            && !(/(((arc)?(sin|cos|tan))(?=\())|(n?√|ln|log|Ans|exp(?=\())/.test(pasted))) {
-            paste.classList.add("failure");
-            setTimeout(() => {
-                paste.classList.remove("failure");
-            }, 500);
-            ERR("Invalid Expression Pasted");
-            bar.value = "PasteError";
-        } else {
-            exprPart.splice(bar.selectionStart, 0, pasted);
-            const newbss = bar.selectionStart + pasted.length;
-            const accEP = exprPart.join('');
-            barvalue(accEP);
-            bar.setSelectionRange(newbss, newbss);
-            saveUpdate('cpos', bar.selectionStart);
-            timesClickedAfterEvaluation++;
-            saveState.tcae++;
-            USS();
+// transforms all types of expressions into one that is valid for the bar
+function normalizePaste(raw) {
+    let t = raw.replace(/[\s\u200b-\u200d\u2060\ufeff\u00ad]/g, '') // removes whitespace (tabs, newlines, nbsp, 0 width chars)
+        .replace(/^=+|=+$/g, '') // removes all prefixing or suffixing =
+        .replace(/[$€£¥₩₹元฿₱₪]/g, '') // in case any common currency is involved
+        .replace(/[−–—‐‑]/g, '-')
+        .replace(/[·⋅∙✕⨉]/g, '×')
+        .replace(/[∕\\]/g, '/')
+        .replace(/[\[{]/g, '(').replace(/[\]}]/g, ')')
+        .replace(/²/g, '^2').replace(/³/g, '^3').replace(/⁴/g, '^4').replace(/⁵/g, '^5')
+        .replace(/⁶/g, '^6').replace(/⁷/g, '^7').replace(/⁸/g, '^8').replace(/⁹/g, '^9')
+        .replace(/\*\*/g, '^').replace(/\*/g, '×').replace(/\//g, '÷');
 
-            paste.classList.add("success");
-            setTimeout(() => {
-                paste.classList.remove("success");
-            }, 500);
-            decFS();
-        }
-    } catch (error) {
+    while(/(\d),(?=\d{3}(?!\d))/.test(t)) t = t.replace(/(\d),(?=\d{3}(?!\d))/g, '$1'); // 1,234 -> 1234
+
+    t = t.replace(/nth(?=sqrt|root)/gi, 'n').replace(/sqrt|root/gi, '√')
+        .replace(/pi/gi, 'π').replace(/percent/gi, '%').replace(/ans/gi, 'Ans')
+        .replace(/(sin|cos|tan)-1/gi, (_, f) => 'arc' + f.toLowerCase())
+        .replace(/a(sin|cos|tan)(?=\()/gi, (_, f) => 'arc' + f.toLowerCase())
+        .replace(/(arc)?(sin|cos|tan)(?=\()/gi, m => m.toLowerCase())
+        .replace(/(ln|log|exp)(?=\()/gi, m => m.toLowerCase())
+        .replace(/(?<=\d)e(?=[+-]?\d)/g, 'E') // 1.5e-7 -> 1.5E-7
+        .replace(/E\+/g, 'E')
+        .replace(/(?<=[\d)π!%])[xX](?=[\d(π.]|Ans|V)/g, '×'); // potential multiplication replacement (eg 3x4 or 3!xπ);
+
+    let out = '', prev = ''; // convert to unary minus when necessary eg 3+-5 -> 3+⁻5
+    for(const ch of t) {
+        out += ch === '-' && (prev === '' || '(+-×÷^E,CP'.includes(prev)) ? '⁻' : ch;
+        prev = ch;
+    }
+
+    const valid = /^(?:\d|(?:arc)?(?:sin|cos|tan)(?=\()|(?:ln|log|exp)(?=\()|n?√(?=\()|Ans|V\S|[.+\-×÷^()!%πeCPNSE⁻])+$/;
+    return valid.test(out) ? out : null;
+}
+
+paste.addEventListener("click", async (e) => {
+    function fail(msg) {
         paste.classList.add("failure");
         setTimeout(() => {
             paste.classList.remove("failure");
         }, 500);
-        ERR("Could not read clipboard");
+        ERR(msg);
         bar.value = "PasteError";
+    }
+
+    try {
+        const pasted = normalizePaste(await navigator.clipboard.readText());
+        if(errMode) unError();
+        if(pasted === null) return fail("Invalid Expression Pasted");
+
+        let base = bar.value, from = bar.selectionStart, to = bar.selectionEnd;
+        if(timesClickedAfterEvaluation === 0) { // the bar shows an answer: like typing, replace it (an operator continues from it)
+            base = [...operArr, '!', '%'].includes(pasted[0]) && pasted[0] !== '.' ? 'Ans' : '';
+            from = to = base.length;
+        }
+        const accEP = base.slice(0, from) + pasted + base.slice(to); // replaces the selection if there is one
+        const newbss = from + pasted.length;
+        barvalue(accEP);
+        bar.setSelectionRange(newbss, newbss);
+        saveUpdate('cpos', bar.selectionStart);
+        timesClickedAfterEvaluation++;
+        saveState.tcae++;
+        USS();
+
+        paste.classList.add("success");
+        setTimeout(() => {
+            paste.classList.remove("success");
+        }, 500);
+        decFS();
+    } catch (error) {
+        fail("Could not read clipboard");
     }
 });
 

@@ -8,12 +8,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..500;1,100..500&display=swap');
 
 body:not(.tb), #tbdiv {
-    width: 475px;
-    height: 450px;
+    display: initial;
+    width: 474px;
+    height: 460px;
     overflow-y: hidden;
 } html {
-    width: 475px;
-    height: 450px;
+    width: 474px;
+    height: 460px;
 }
 
 .small {
@@ -100,8 +101,8 @@ input::-webkit-inner-spin-button {
     font-size: 25px;
 } #equ {
     position: relative;
-    left: 60%;
-    top: 82.7% !important;
+    left: 60.2%;
+    top: 82.8% !important;
 } #drer>* {
     width: 37px !important;
     height: 27px;
@@ -420,7 +421,7 @@ h2 {
     height: 14px;
     border-radius: 3px;
     left: 0.6%;
-    top: 149px;
+    top: 155px;
     z-index: 2;
     box-shadow: none;
 } .arrow:hover {
@@ -448,6 +449,7 @@ h2 {
     flex-direction: row;
     position: absolute;
     gap: 5px;
+    margin: 5px 0 0 5px;
 }
 
 .toplink {
@@ -601,6 +603,7 @@ h2 {
     overflow-x: hidden;
 	height: 15px;
     top: 70px;
+    left: 8px;
 	font-family: 'Inter', sans-serif;
 	text-align: left;
 	font-size: 11px;
@@ -756,7 +759,7 @@ h2 {
     flex-direction: row;
     justify-content: flex-start;
     position: absolute;
-    left: 17%;
+    left: 16.5%;
     top: 9%;
     z-index: 6;
     background: whitesmoke;
@@ -935,6 +938,7 @@ svg.failure {
     font-weight: 700;
 } #patch .list {
     font-size: 9px;
+    line-height: 1px;
 } #patch::-webkit-scrollbar {
     display: none;
 }
